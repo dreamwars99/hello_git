@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주차장 찾아조! - 프레젠테이션</title>
+    <!-- Common Libraries -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* Base styles */
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            margin: 0;
+            background-color: #333; /* Background color outside the slide */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden; /* Prevent body scroll */
+        }
+
+        /* Presentation container */
+        #presentation {
+            width: 1280px; /* Fixed slide width */
+            height: 720px; /* Fixed slide height */
+            position: relative; /* For absolute positioning of slides and controls */
+            overflow: hidden; /* Hide slides outside the container */
+            background-color: white; /* Default background if slide fails */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        /* Individual slide wrapper */
+        .slide-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0; /* Hidden by default */
+            pointer-events: none; /* Prevent interaction when hidden */
+            transition: opacity 0.5s ease-in-out; /* Fade transition */
+            display: flex; /* To center the .slide content */
+            justify-content: center;
+            align-items: center;
+            background-color: #ffffff; /* Ensure background for wrapper */
+        }
+
+        .slide-wrapper.active {
+            opacity: 1; /* Show active slide */
+            pointer-events: auto; /* Allow interaction */
+            z-index: 1; /* Bring active slide to front */
+        }
+
+        /* Base style for the .slide content box (consistent across all slides) */
+        .slide {
+            width: 1280px;
+            height: 720px;
+            background-color: #ffffff;
+            border-top: 20px solid #FF8A3D; /* Orange */
+            border-bottom: 20px solid #A0D2DB; /* Light Blue */
+            border-left: 20px solid #FF8A3D;
+            border-right: 20px solid #A0D2DB;
+            box-sizing: border-box;
+            display: flex; /* Use flex for internal layout */
+            flex-direction: column; /* Default direction, can be overridden */
+            padding: 40px 60px; /* Default padding, adjust per slide if needed */
+            overflow: hidden; /* Prevent content spillover */
+            flex-shrink: 0; /* Prevent shrinking */
+        }
+
+        /* Navigation Buttons */
+        .nav-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.3);
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 10;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0.5;
+            transition: opacity 0.3s ease;
+        }
+        .nav-button:hover {
+            background-color: rgba(0, 0, 0, 0.6);
+            opacity: 1;
+        }
+        #prev-slide {
+            left: 25px; /* Adjust position */
+        }
+        #next-slide {
+            right: 25px; /* Adjust position */
+        }
+        .nav-button:disabled {
+            opacity: 0.1;
+            cursor: default;
+        }
+
+        /* --- Specific Slide Styles (Copied & Consolidated) --- */
+
+        /* Slide 1 (Cover) Specific Styles */
+        .slide-1 .illustration-placeholder {
+            width: 35%; height: 400px; background-color: #f3f4f6; border: 2px dashed #d1d5db;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; color: #6b7280; font-size: 1.2rem; margin-right: 4rem; flex-shrink: 0;
+        }
+        .slide-1 .illustration-placeholder i { font-size: 5rem; margin-bottom: 1rem; color: #9ca3af; }
+        .slide-1 { align-items: center; padding: 60px 80px; flex-direction: row; } /* Override base flex direction */
+
+        /* Slide 2 (TOC) Specific Styles */
+        .slide-2 .contents-placeholder {
+            width: 35%; height: 350px; background-color: #f3f4f6; border: 2px dashed #d1d5db;
+            display: flex; justify-content: center; align-items: center; color: #6b7280; font-size: 1.2rem;
+            margin-right: 4rem; flex-shrink: 0; flex-direction: column; text-align: center;
+        }
+        .slide-2 .contents-placeholder i { font-size: 4rem; margin-bottom: 1rem; color: #9ca3af; }
+        .slide-2 .list-item { display: flex; align-items: center; margin-bottom: 1.5rem; font-size: 1.5rem; font-weight: 500; color: #374151; }
+        .slide-2 .list-number { background-color: #FF8A3D; color: white; width: 36px; height: 36px; border-radius: 50%; display: inline-flex; justify-content: center; align-items: center; font-weight: bold; margin-right: 1rem; flex-shrink: 0; }
+        .slide-2 { align-items: center; padding: 60px 80px; flex-direction: row; }
+
+        /* Slide 3 (Background 1) Specific Styles */
+        .slide-3 { padding: 50px 70px; }
+        .slide-3 .news-quote { background-color: #f9fafb; border-left: 4px solid #FF8A3D; padding: 1.5rem; margin-bottom: 1.5rem; font-style: italic; color: #4b5563; }
+        .slide-3 .chart-placeholder { height: 300px; background-color: #f3f4f6; border: 1px solid #e5e7eb; display: flex; justify-content: center; align-items: center; color: #6b7280; font-size: 1.1rem; text-align: center; }
+        .slide-3 .chart-placeholder i { font-size: 3rem; margin-bottom: 0.5rem; color: #9ca3af; }
+
+        /* Slide 4 (Background 2) Specific Styles */
+        .slide-4 { padding: 50px 70px; justify-content: center; }
+        .slide-4 .chart-placeholder-bar { height: 400px; background-color: #f3f4f6; border: 1px solid #e5e7eb; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #6b7280; font-size: 1.1rem; text-align: center; }
+        .slide-4 .chart-placeholder-bar i { font-size: 4rem; margin-bottom: 1rem; color: #9ca3af; }
+
+        /* Slide 5 (Tech Stack) Specific Styles */
+        .slide-5 { padding: 50px 70px; }
+        .slide-5 .tech-item { display: flex; align-items: center; margin-bottom: 1.8rem; }
+        .slide-5 .tech-icon { width: 70px; font-size: 2.2rem; text-align: center; margin-right: 1.5rem; flex-shrink: 0; }
+        .slide-5 .tech-name { font-size: 1.7rem; font-weight: 600; color: #1f2937; width: 180px; flex-shrink: 0; }
+        .slide-5 .tech-line { flex-grow: 1; height: 2px; background: linear-gradient(to right, #d1d5db, #d1d5db 50%, transparent 50%); background-size: 16px 2px; margin: 0 1rem; }
+        .slide-5 .tech-category { font-size: 1.7rem; font-weight: 500; color: #4b5563; text-align: right; width: 200px; flex-shrink: 0; }
+        .slide-5 .python-icon { color: #3776AB; } .slide-5 .api-icon { color: #FFCD00; } .slide-5 .db-icon { color: #00758F; } .slide-5 .data-icon { color: #135590; } .slide-5 .ui-icon { color: #FF7F11; } .slide-5 .design-icon { color: #A259FF; }
+
+        /* Slide 6 (Service Intro) Specific Styles */
+        .slide-6 { padding: 50px 70px; align-items: center; flex-direction: row; }
+        .slide-6 .service-image-placeholder { width: 45%; height: 450px; background-color: #f3f4f6; border: 2px dashed #d1d5db; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: #6b7280; font-size: 1.2rem; flex-shrink: 0; margin-right: 4rem; }
+        .slide-6 .service-image-placeholder i { font-size: 5rem; margin-bottom: 1rem; color: #9ca3af; }
+        .slide-6 .highlight-point { display: flex; align-items: flex-start; margin-bottom: 1.8rem; }
+        .slide-6 .highlight-icon { font-size: 1.7rem; color: #FF8A3D; margin-right: 1rem; margin-top: 0.2rem; width: 30px; text-align: center; flex-shrink: 0; }
+        .slide-6 .highlight-text { font-size: 1.4rem; color: #374151; line-height: 1.7; }
+
+        /* Slide 7 (Service Goals) Specific Styles */
+        .slide-7 { padding: 60px 80px; justify-content: center; align-items: center; }
+        .slide-7 .goal-item { display: flex; align-items: center; background-color: #f3f4f6; padding: 1.3rem 2rem; border-radius: 0.5rem; margin-bottom: 1.8rem; width: 100%; max-width: 750px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .slide-7 .goal-icon { font-size: 2.2rem; color: #10B981; margin-right: 1.5rem; width: 50px; text-align: center; flex-shrink: 0; }
+        .slide-7 .goal-text { font-size: 1.7rem; font-weight: 600; color: #374151; }
+
+        /* Slide 8 (Service Features) Specific Styles */
+        .slide-8 { padding: 60px 80px; justify-content: center; align-items: center; }
+        .slide-8 .feature-item { display: flex; align-items: center; margin-bottom: 2.2rem; width: 100%; max-width: 850px; }
+        .slide-8 .feature-icon { font-size: 2.5rem; margin-right: 2rem; width: 60px; text-align: center; flex-shrink: 0; }
+        .slide-8 .feature-text { font-size: 1.8rem; font-weight: 500; color: #1f2937; }
+        .slide-8 .icon-search { color: #4B5563; } .slide-8 .icon-map { color: #10B981; } .slide-8 .icon-pin { color: #EF4444; } .slide-8 .icon-link { color: #6366F1; } .slide-8 .icon-login { color: #F59E0B; }
+
+        /* Slide 9 (Demo) Specific Styles */
+        .slide-9 { justify-content: center; align-items: center; text-align: center; }
+
+        /* Slide 10 (User Flow) Specific Styles */
+        .slide-10 { padding: 40px 60px; }
+        .slide-10 .component-box { min-height: 110px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .slide-10 .arrow { font-size: 1.8rem; color: #9ca3af; margin: 0 1rem; align-self: center; }
+        .slide-10 .arrow-down { font-size: 1.6rem; color: #9ca3af; margin-top: 0.5rem; margin-bottom: 0.5rem; }
+        .slide-10 .sub-process { position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%) translateY(100%); display: flex; flex-direction: column; align-items: center; margin-top: 5px; width: 180px; }
+
+        /* Slide 11 (Results) Specific Styles */
+        .slide-11 { padding: 50px 70px; }
+        .slide-11 .card { background-color: white; border-radius: 0.5rem; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); height: 100%; }
+        .slide-11 .card-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; }
+        .slide-11 .card-icon { margin-right: 0.75rem; font-size: 1.4rem; }
+        .slide-11 .card-content li { margin-bottom: 0.75rem; line-height: 1.6; font-size: 1.1rem; } /* Adjusted font size */
+
+    </style>
+</head>
+<body>
+    <div id="presentation">
+
+        <!-- Slide 1: 표지 -->
+        <div class="slide-wrapper active">
+            <div class="slide slide-1">
+                <div class="illustration-placeholder mr-16 flex-shrink-0">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <span>주차장 검색 서비스<br>관련 일러스트 영역</span>
+                </div>
+                <div class="flex flex-col justify-center flex-grow">
+                    <div class="mb-4">
+                        <span class="text-xl font-medium text-gray-600">3팀 주차장 찾아조</span><br>
+                        <span class="text-sm font-light text-gray-500">BUSINESS PROJECT PRESENTATION</span>
+                    </div>
+                    <h1 class="text-6xl font-extrabold text-gray-800 leading-tight mb-6">
+                        목적지 주변<br>주차장 검색<br>서비스
+                    </h1>
+                    <p class="text-base text-gray-500 mb-8 leading-relaxed">
+                        도심 속 주차 문제를 해결하고, 운전자의 편의를 증진시키기 위한<br>
+                        목적지 기반 주차장 정보 제공 서비스입니다.
+                    </p>
+                    <div class="text-lg font-medium text-gray-700">
+                        팀원: 하종수 이승혁 강윤구 이재혁 이원지희
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: 목차 -->
+        <div class="slide-wrapper">
+            <div class="slide slide-2">
+                 <div class="contents-placeholder mr-16 flex-shrink-0 flex-col text-center">
+                     <i class="fas fa-list-ul"></i>
+                     <span>목차<br>일러스트 영역</span>
+                 </div>
+                 <div class="flex flex-col justify-center flex-grow">
+                     <h1 class="text-5xl font-extrabold text-gray-800 mb-10">목차</h1>
+                     <ul class="list-none p-0">
+                         <li class="list-item"><span class="list-number">1</span>문제 정의 및 서비스 기획 배경</li>
+                         <li class="list-item"><span class="list-number">2</span>서비스 개요 및 주요 기능</li>
+                         <li class="list-item"><span class="list-number">3</span>기술 스택 및 시스템 아키텍처</li>
+                         <li class="list-item"><span class="list-number">4</span>개발 과정 및 프로젝트 운영 전략</li>
+                         <li class="list-item"><span class="list-number">5</span>서비스 결과물 및 주요 화면 (시연)</li>
+                         <li class="list-item"><span class="list-number">6</span>프로젝트 성과 및 향후 발전 방향</li>
+                     </ul>
+                 </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: 서비스 기획 배경 (1/2) -->
+        <div class="slide-wrapper">
+             <div class="slide slide-3">
+                 <div class="mb-8">
+                     <span class="text-lg font-medium text-gray-500">1. 문제 정의 및 서비스 기획 배경</span>
+                     <h1 class="text-4xl font-bold text-gray-800 mt-1">주차 환경에서의 주요 문제점</h1>
+                 </div>
+                 <div class="flex-grow grid grid-cols-2 gap-10">
+                     <div>
+                         <h2 class="text-2xl font-semibold text-gray-700 mb-4">운전자 스트레스 가중</h2>
+                         <div class="news-quote">
+                             <p class="mb-2">"국내 운전자 10명 중 6명, '주차 문제로 스트레스' 받는다"</p>
+                             <p class="text-sm text-right">- 아시아경제 (2016.04.22)</p>
+                         </div>
+                         <div class="news-quote">
+                              <p class="mb-2">"[요즈음] 작은 갈등, 큰 혐오... 주차 문제가 쌓아 올린 이웃 간 단절"</p>
+                              <p class="text-sm text-right">- 아시아타임즈 (2024.10.01)</p>
+                          </div>
+                          <ul class="list-disc list-inside text-lg text-gray-600 space-y-2 mt-6">
+                              <li>도심 지역의 만성적인 주차 공간 부족</li>
+                              <li>목적지 도착 후 주차장 탐색에 추가 시간 소요</li>
+                              <li>주차 공간 탐색으로 인한 시간 및 연료 낭비 발생</li>
+                              <li>불법 주정차 증가 및 관련 사회적 갈등 심화</li>
+                          </ul>
+                     </div>
+                     <div>
+                         <h2 class="text-2xl font-semibold text-gray-700 mb-4">주차 문제 관련 인식</h2>
+                          <div class="chart-placeholder">
+                              <div>
+                                  <i class="fas fa-chart-bar"></i>
+                                  <span>주차 문제 관련 전반적 인식<br>(통계 그래프 영역)</span>
+                                  <p class="text-sm mt-2">(예: 스트레스 경험, 외출 고민, 안전 위협 등)</p>
+                              </div>
+                          </div>
+                          <p class="text-center text-gray-500 mt-2 text-sm">자료: OCR 3페이지 참고 (그래프 시각화)</p>
+                     </div>
+                 </div>
+             </div>
+        </div>
+
+        <!-- Slide 4: 서비스 기획 배경 (2/2) -->
+        <div class="slide-wrapper">
+             <div class="slide slide-4">
+                 <div class="text-center mb-10">
+                      <span class="text-lg font-medium text-gray-500">1. 문제 정의 및 서비스 기획 배경</span>
+                     <h1 class="text-4xl font-bold text-gray-800 mt-1">주차 이슈별 심각성 인식</h1>
+                 </div>
+                 <div class="flex-grow flex justify-center items-center">
+                     <div class="w-full max-w-4xl">
+                         <div class="chart-placeholder-bar">
+                              <i class="fas fa-chart-column"></i>
+                              <span>'주차 이슈별' 심각성 평가<br>(막대 그래프 영역)</span>
+                              <p class="text-sm mt-2">(예: 주차장 부족, 불법 주차, 교통 혼잡 문제 심각도 비교)</p>
+                              <p class="text-xs mt-4">(Base: 전체, 단위: '심각한 편' 응답률 %)</p>
+                          </div>
+                          <p class="text-center text-gray-500 mt-3 text-sm">자료: OCR 4페이지 참고 (그래프 시각화)</p>
+                          <div class="mt-8 text-center text-xl text-gray-700 leading-relaxed">
+                              <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
+                              주차 공간 부족, 불법 주차, 이로 인한 교통 혼잡 등<br>다양한 주차 관련 문제가 심각하게 인식되고 있습니다.<br>
+                              <span class="font-semibold text-blue-600">이에 따라 목적지 주변 주차장을 쉽고 빠르게 찾는 서비스의 필요성이 대두됩니다.</span>
+                          </div>
+                     </div>
+                 </div>
+             </div>
+        </div>
+
+        <!-- Slide 5: 기술 스택 -->
+        <div class="slide-wrapper">
+             <div class="slide slide-5">
+                 <div class="text-center mb-12">
+                     <span class="text-lg font-medium text-gray-500">3. 기술 스택 및 시스템 아키텍처</span>
+                     <h1 class="text-4xl font-bold text-gray-800 mt-1">사용한 기술 스택</h1>
+                 </div>
+                 <div class="flex-grow flex flex-col justify-center px-16">
+                     <div class="tech-item">
+                         <div class="tech-icon python-icon"><i class="fab fa-python"></i></div>
+                         <div class="tech-name">Python</div>
+                         <div class="tech-line"></div>
+                         <div class="tech-category">언어</div>
+                     </div>
+                     <div class="tech-item">
+                         <div class="tech-icon api-icon"><i class="fas fa-comment"></i></div>
+                         <div class="tech-name">Kakao REST API</div>
+                         <div class="tech-line"></div>
+                         <div class="tech-category">데이터 Fetching</div>
+                     </div>
+                     <div class="tech-item">
+                         <div class="tech-icon db-icon"><i class="fas fa-database"></i></div>
+                         <div class="tech-name">MySQL</div>
+                         <div class="tech-line"></div>
+                         <div class="tech-category">데이터 저장</div>
+                     </div>
+                      <div class="tech-item">
+                          <div class="tech-icon data-icon"><i class="fas fa-table"></i></div>
+                          <div class="tech-name">Pandas</div>
+                          <div class="tech-line"></div>
+                          <div class="tech-category">데이터 처리</div>
+                      </div>
+                     <div class="tech-item">
+                         <div class="tech-icon ui-icon"><i class="fas fa-desktop"></i></div>
+                         <div class="tech-name">Streamlit</div>
+                         <div class="tech-line"></div>
+                         <div class="tech-category">화면 구현 (UI/FE)</div>
+                     </div>
+                     <div class="tech-item">
+                          <div class="tech-icon design-icon"><i class="fab fa-figma"></i></div>
+                          <div class="tech-name">Figma</div>
+                          <div class="tech-line"></div>
+                          <div class="tech-category">UI 디자인</div>
+                      </div>
+                 </div>
+             </div>
+        </div>
+
+        <!-- Slide 6: 서비스 소개 -->
+        <div class="slide-wrapper">
+             <div class="slide slide-6">
+                 <div class="service-image-placeholder">
+                     <i class="fas fa-mobile-alt"></i>
+                     <span>서비스 화면 예시<br>(일러스트 또는 스크린샷 영역)</span>
+                     <p class="text-sm mt-4">(OCR 6페이지 이미지 참고)</p>
+                 </div>
+                 <div class="flex flex-col justify-center flex-grow">
+                     <div class="mb-8">
+                         <span class="text-lg font-medium text-gray-500">2. 서비스 개요 및 주요 기능</span>
+                         <h1 class="text-4xl font-bold text-gray-800 mt-1">서비스 소개: 주차장 찾아조!</h1>
+                     </div>
+                     <div class="highlight-point">
+                         <div class="highlight-icon"><i class="fas fa-map-marker-alt"></i></div>
+                         <div class="highlight-text">
+                             <span class="font-semibold">내가 지정한 목적지 (주소 또는 키워드) 근처</span>의 주차장과 주차장의 상세 정보를 제공하는 서비스입니다.
+                         </div>
+                     </div>
+                     <div class="highlight-point">
+                         <div class="highlight-icon"><i class="fas fa-search-location"></i></div>
+                         <div class="highlight-text">
+                             사용자는 <span class="font-semibold">목적지 주변의 주차장을 지도와 목록으로 쉽게 검색</span>할 수 있습니다.
+                         </div>
+                     </div>
+                     <div class="highlight-point">
+                         <div class="highlight-icon"><i class="fas fa-dollar-sign"></i></div>
+                         <div class="highlight-text">
+                             검색된 <span class="font-semibold">주차장의 요금 정보 (기본/추가 요금 등) 및 운영 시간</span>을 파악하여 합리적인 선택을 돕습니다.
+                         </div>
+                     </div>
+                 </div>
+             </div>
+        </div>
+
+        <!-- Slide 7: 서비스 목표 -->
+        <div class="slide-wrapper">
+             <div class="slide slide-7">
+                 <div class="text-center mb-12">
+                     <span class="text-lg font-medium text-gray-500">2. 서비스 개요 및 주요 기능</span>
+                     <h1 class="text-4xl font-bold text-gray-800 mt-1">서비스 목표</h1>
+                 </div>
+                 <div class="w-full flex flex-col items-center">
+                     <div class="goal-item">
+                         <div class="goal-icon"><i class="fas fa-tachometer-alt"></i></div>
+                         <div class="goal-text">빠르고 편리한 주차장 검색 경험 제공</div>
+                     </div>
+                     <div class="goal-item">
+                         <div class="goal-icon"><i class="far fa-clock"></i></div>
+                         <div class="goal-text">주차장 찾는 시간 절약</div>
+                     </div>
+                     <div class="goal-item">
+                         <div class="goal-icon"><i class="fas fa-traffic-light"></i></div>
+                         <div class="goal-text">교통 혼잡 완화 기여</div>
+                     </div>
+                     <div class="goal-item">
+                         <div class="goal-icon"><i class="fas fa-check-circle"></i></div>
+                         <div class="goal-text">실시간 정보 기반 신뢰성 높은 서비스 구축</div>
+                     </div>
+                 </div>
+             </div>
+        </div>
+
+        <!-- Slide 8: 서비스 기능 -->
+        <div class="slide-wrapper">
+             <div class="slide slide-8">
+                 <div class="text-center mb-16">
+                     <span class="text-lg font-medium text-gray-500">2. 서비스 개요 및 주요 기능</span>
+                     <h1 class="text-4xl font-bold text-gray-800 mt-1">주요 기능</h1>
+                 </div>
+                 <div class="w-full flex flex-col items-center">
+                     <div class="feature-item">
+                         <div class="feature-icon icon-search"><i class="fas fa-search"></i></div>
+                         <div class="feature-text">전국의 주차장 검색 가능</div>
+                     </div>
+                     <div class="feature-item">
+                         <div class="feature-icon icon-map"><i class="fas fa-map-signs"></i></div>
+                         <div class="feature-text">주소 또는 키워드 기반 목적지 검색</div>
+                     </div>
+                     <div class="feature-item">
+                         <div class="feature-icon icon-pin"><i class="fas fa-map-marker-alt"></i></div>
+                         <div class="feature-text">목적지 주변 거리순 주차장 검색 및 정렬</div>
+                     </div>
+                     <div class="feature-item">
+                         <div class="feature-icon icon-link"><i class="fas fa-info-circle"></i></div>
+                         <div class="feature-text">주차장별 상세 정보 (요금, 시간 등) 링크 제공</div>
+                     </div>
+                     <div class="feature-item">
+                         <div class="feature-icon icon-login"><i class="fas fa-user-lock"></i></div>
+                         <div class="feature-text">회원가입 및 로그인 서비스 (즐겨찾기 등 확장 기능 기반)</div>
+                     </div>
+                 </div>
+             </div>
+        </div>
+
+        <!-- Slide 9: 시연 영상 -->
+        <div class="slide-wrapper">
+             <div class="slide slide-9">
+                 <div class="mb-8">
+                     <span class="text-lg font-medium text-gray-500">5. 서비스 결과물 및 주요 화면</span>
+                     <h1 class="text-6xl font-extrabold text-gray-800 mt-4 mb-8">서비스 시연</h1>
+                     <i class="fas fa-play-circle text-8xl text-blue-500"></i>
+                     <p class="text-2xl text-gray-600 mt-8">
+                         (실제 서비스 시연 영상 재생 구간)
+                     </p>
+                 </div>
+             </div>
+        </div>
+
+        <!-- Slide 10: 서비스 흐름 -->
+        <div class="slide-wrapper">
+             <div class="slide slide-10">
+                 <div class="text-center mb-10">
+                     <span class="text-lg font-medium text-gray-500">3. 기술 스택 및 시스템 아키텍처</span>
+                     <h1 class="text-4xl font-bold text-gray-800 mt-1">서비스 전체 사용 흐름</h1>
+                     <p class="text-xl text-gray-600 mt-3">사용자 요청부터 정보 제공까지의 여정</p>
+                 </div>
+                 <div class="flex-grow flex flex-col justify-center items-center space-y-4">
+                     <div class="flex items-stretch justify-center w-full px-4">
+                         <div class="component-box text-center p-3 border rounded-lg shadow bg-blue-50 w-52">
+                             <i class="fas fa-user text-3xl text-blue-500 mb-1"></i>
+                             <h3 class="font-semibold text-base">사용자</h3>
+                             <p class="text-sm text-gray-600">목적지 입력<br>(Streamlit 접속)</p>
+                         </div>
+                         <i class="fas fa-long-arrow-alt-right arrow"></i>
+                         <div class="component-box text-center p-3 border rounded-lg shadow bg-green-50 w-52">
+                             <i class="fas fa-server text-3xl text-green-600 mb-1"></i>
+                             <h3 class="font-semibold text-base">Streamlit 서버</h3>
+                             <p class="text-sm text-gray-600">입력값 처리 &<br>Kakao API 요청</p>
+                         </div>
+                         <i class="fas fa-long-arrow-alt-right arrow"></i>
+                         <div class="component-box text-center p-3 border rounded-lg shadow bg-yellow-50 w-52">
+                             <i class="fas fa-map-marked-alt text-3xl text-yellow-600 mb-1"></i>
+                             <h3 class="font-semibold text-base">Kakao API</h3>
+                             <p class="text-sm text-gray-600">좌표 변환 &<br>주차장 데이터 반환</p>
+                         </div>
+                     </div>
+                     <div class="flex justify-end w-full" style="padding-right: calc(50% - 7rem);">
+                          <i class="fas fa-long-arrow-alt-down arrow-down"></i>
+                     </div>
+                     <div class="flex items-stretch justify-center w-full px-4">
+                          <div class="component-box text-center p-3 border rounded-lg shadow bg-green-50 w-52 relative">
+                             <i class="fas fa-server text-3xl text-green-600 mb-1"></i>
+                             <h3 class="font-semibold text-base">Streamlit 서버</h3>
+                             <p class="text-sm text-gray-600">데이터 처리 &<br>사용자에게 주차장 표시</p>
+                             <div class="sub-process">
+                                  <i class="fas fa-long-arrow-alt-down text-gray-400 text-lg mb-1"></i>
+                                  <div class="flex flex-col space-y-1 w-full items-center">
+                                      <span class="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-md w-36 text-center"><i class="fas fa-database mr-1"></i>SQLite DB (즐겨찾기)</span>
+                                      <span class="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-md w-36 text-center"><i class="fas fa-spider mr-1"></i>웹 크롤링 (상세정보)</span>
+                                  </div>
+                             </div>
+                         </div>
+                         <i class="fas fa-long-arrow-alt-right arrow"></i>
+                          <div class="component-box text-center p-3 border rounded-lg shadow bg-blue-50 w-52">
+                             <i class="fas fa-eye text-3xl text-blue-500 mb-1"></i>
+                             <h3 class="font-semibold text-base">사용자</h3>
+                             <p class="text-sm text-gray-600">주차장 정보 확인</p>
+                         </div>
+                          <div class="w-52"></div>
+                     </div>
+                 </div>
+                  <div class="mt-12"></div>
+             </div>
+        </div>
+
+        <!-- Slide 11: 성과 및 향후 발전 방향 -->
+        <div class="slide-wrapper">
+             <div class="slide slide-11">
+                 <div class="text-center mb-10">
+                     <span class="text-lg font-medium text-gray-500">6. 프로젝트 성과 및 향후 발전 방향</span>
+                     <h1 class="text-4xl font-bold text-gray-800 mt-1">프로젝트 평가 및 발전 방향</h1>
+                 </div>
+                 <div class="flex-grow grid grid-cols-1 md:grid-cols-3 gap-8">
+                     <div class="card border-t-4 border-green-500">
+                         <h2 class="card-title text-green-600">
+                             <i class="fas fa-thumbs-up card-icon"></i>강점 (Achievements)
+                         </h2>
+                         <ul class="list-disc list-inside text-gray-700 card-content">
+                             <li>핵심 기능(목적지 기반 검색) 구현 완료</li>
+                             <li>Kakao API 연동을 통한 데이터 정확성 확보</li>
+                             <li>Streamlit 기반의 신속한 프로토타입 개발</li>
+                             <li>명확한 역할 분담 기반의 효율적 팀워크</li>
+                         </ul>
+                     </div>
+                     <div class="card border-t-4 border-yellow-500">
+                         <h2 class="card-title text-yellow-600">
+                             <i class="fas fa-exclamation-triangle card-icon"></i>보완점 (Challenges)
+                         </h2>
+                         <ul class="list-disc list-inside text-gray-700 card-content">
+                             <li>실시간 주차 가능 대수 정보 미반영</li>
+                             <li>주차장 상세 정보(요금 등) 업데이트 주기 문제</li>
+                             <li>사용자 편의 기능(필터링, 즐겨찾기 고도화) 부족</li>
+                             <li>초기 로딩 속도 개선 필요성</li>
+                         </ul>
+                     </div>
+                     <div class="card border-t-4 border-blue-500">
+                         <h2 class="card-title text-blue-600">
+                             <i class="fas fa-arrow-alt-circle-right card-icon"></i>향후 발전 방향 (Future Plans)
+                         </h2>
+                         <ul class="list-disc list-inside text-gray-700 card-content">
+                             <li>공공데이터포털 등 연동하여 실시간 주차 정보 제공</li>
+                             <li>주차 요금 자동 계산 기능 추가</li>
+                             <li>사용자 리뷰 및 평점 시스템 도입</li>
+                             <li>주차 예약 시스템 연동 가능성 검토</li>
+                             <li>모바일 앱 버전 개발 고려</li>
+                         </ul>
+                     </div>
+                 </div>
+             </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <button id="prev-slide" class="nav-button" aria-label="Previous Slide">❮</button>
+        <button id="next-slide" class="nav-button" aria-label="Next Slide">❯</button>
+
+    </div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide-wrapper');
+        const prevButton = document.getElementById('prev-slide');
+        const nextButton = document.getElementById('next-slide');
+        let currentSlideIndex = 0;
+        const totalSlides = slides.length;
+
+        function showSlide(index) {
+            // Remove active class from all slides
+            slides.forEach(slide => slide.classList.remove('active'));
+
+            // Add active class to the target slide
+            slides[index].classList.add('active');
+
+            // Update button states
+            prevButton.disabled = index === 0;
+            nextButton.disabled = index === totalSlides - 1;
+        }
+
+        function nextSlide() {
+            if (currentSlideIndex < totalSlides - 1) {
+                currentSlideIndex++;
+                showSlide(currentSlideIndex);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlideIndex > 0) {
+                currentSlideIndex--;
+                showSlide(currentSlideIndex);
+            }
+        }
+
+        // Event Listeners for buttons
+        nextButton.addEventListener('click', nextSlide);
+        prevButton.addEventListener('click', prevSlide);
+
+        // Event Listener for keyboard navigation
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowRight') {
+                nextSlide();
+            } else if (event.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        // Initial setup
+        showSlide(currentSlideIndex);
+
+    </script>
+</body>
+</html>
