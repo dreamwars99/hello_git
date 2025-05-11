@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matplotlib & Seaborn 데이터 시각화 (단순 버전)</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #e2e8f0; /* Tailwind gray-200 */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* 전체 화면 높이 */
+            overflow-x: hidden; /* 가로 스크롤 방지 */
+        }
+
+        .presentation-container {
+            width: 1280px; /* 슬라이드 기본 너비 */
+            max-width: 100%; /* 화면 너비 초과 방지 */
+            aspect-ratio: 16 / 9; /* 슬라이드 비율 유지 */
+            position: relative; /* 내부 요소 위치 기준 */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            background-color: white; /* 슬라이드 배경 기본값 */
+            border-radius: 10px;
+            overflow: hidden; /* 네비게이션이 슬라이드 밖으로 나가지 않도록 */
+        }
+
+        .slide {
+            display: none; /* 기본적으로 모든 슬라이드 숨김 */
+            width: 100%;
+            height: 100%;
+            padding: 40px 60px;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: absolute; /* 모든 슬라이드가 같은 위치에 겹치도록 */
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .slide:target {
+            display: flex; /* URL 해시와 ID가 일치하는 슬라이드만 보여줌 */
+            opacity: 1;
+            z-index: 10; /* 활성 슬라이드를 위로 */
+        }
+        
+        /* 초기 슬라이드 (JavaScript 없을 경우 대비 또는 첫 로드 시) */
+        /* JavaScript로 #slide1을 설정하므로 이 부분이 필수는 아님 */
+        /* #slide1 { display: flex; opacity: 1; z-index: 5;} */
+
+
+        .slide-title {
+            font-size: 3.2rem; /* 약간 줄임 */
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 20px;
+        }
+        .slide-subtitle {
+            font-size: 1.75rem; /* 약간 줄임 */
+            font-weight: 500;
+            color: #4a5568;
+            margin-bottom: 30px;
+        }
+        .content-title {
+            font-size: 2.2rem; /* 약간 줄임 */
+            font-weight: 600;
+            color: #2c5282;
+            margin-bottom: 25px;
+            text-align: left;
+            width: 100%;
+        }
+        .content-text {
+            font-size: 1.15rem; /* 약간 줄임 */
+            line-height: 1.7;
+            text-align: left;
+            width: 100%;
+            color: #4a5568;
+        }
+        .content-text ul { list-style-type: none; padding-left: 0; }
+        .content-text ul li { margin-bottom: 12px; display: flex; align-items: flex-start; }
+        .content-text ul li .fas, .content-text ul li .fab { color: #38a169; margin-right: 12px; font-size: 1.3rem; margin-top: 4px; }
+        
+        .code-block {
+            background-color: #2d3748; color: white; padding: 15px; border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace; font-size: 0.95rem;
+            text-align: left; margin-top: 15px; width: 100%; overflow-x: auto;
+        }
+        .code-block pre { margin: 0; }
+        .code-block pre code { white-space: pre; }
+
+        .navigation {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20; /* 네비게이션이 슬라이드 위에 보이도록 */
+            display: flex;
+            gap: 15px;
+        }
+        .nav-button {
+            background-color: #2c5282; /* Tailwind blue-800 */
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        .nav-button:hover {
+            background-color: #2a4365; /* Tailwind blue-900 */
+        }
+        .slide-counter {
+            position: absolute;
+            bottom: 25px;
+            right: 30px;
+            z-index: 20;
+            font-size: 1rem;
+            color: #4a5568;
+        }
+
+        /* Custom slide backgrounds */
+        #slide1 { background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        #slide1 .slide-title, #slide1 .slide-subtitle { color: white; }
+        #slide5, #slide11, #slide15, #slide19 { background-color: #edf2f7; } /* Tailwind gray-100 for section intros */
+        #slide21 { background-image: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: #1a202c; }
+        #slide22 { background-color: #4a5568; color: white;}
+        #slide22 .slide-title, #slide22 .slide-subtitle { color: white; }
+
+    </style>
+</head>
+<body>
+
+    <div class="presentation-container">
+        <!-- 각 슬라이드는 section으로 구성됩니다 -->
+        <!-- 슬라이드 내용은 이전 impress.js 버전과 동일하게 유지하되, ID만 부여하고 네비게이션을 추가합니다. -->
+
+        <!-- Slide 1: Title -->
+        <section class="slide" id="slide1">
+            <h1 class="slide-title"><i class="fas fa-chart-line mr-4"></i>Matplotlib & Seaborn 데이터 시각화</h1>
+            <p class="slide-subtitle">기초부터 응용, 실전까지: 파이썬 시각화 완전 정복</p>
+            <p class="text-xl mt-8">데이터에 숨겨진 이야기를 발견하는 여정</p>
+            <div class="navigation">
+                <a href="#slide2" class="nav-button">다음 <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+            <div class="slide-counter">1 / 26</div>
+        </section>
+
+        <!-- Slide 2: Intro: Why Visualization? -->
+        <section class="slide" id="slide2">
+            <h2 class="content-title"><i class="fas fa-question-circle mr-3 text-yellow-500"></i>데이터 시각화, 왜 중요할까요?</h2>
+            <div class="content-text">
+                <p class="mb-4">데이터 시각화는 복잡한 데이터셋을 이해하고 의미 있는 통찰력을 추출하는 데 있어 중요한 역할을 수행하며, 특히 머신 러닝 워크플로우 내에서 그 중요성은 더욱 강조됩니다. 시각화는 원시 수치 데이터에 가려진 패턴, 추세, 이상치 및 관계를 식별하는 데 도움을 줍니다.</p>
+                <ul>
+                    <li><i class="fas fa-check-circle"></i>복잡한 데이터셋을 직관적으로 이해하고 의미 있는 통찰력을 빠르게 추출합니다.</li>
+                    <li><i class="fas fa-check-circle"></i>원시 데이터에 가려진 패턴, 추세, 이상치 및 관계를 효과적으로 식별합니다.</li>
+                    <li><i class="fas fa-check-circle"></i>데이터 기반 의사결정을 지원하고, 설득력 있는 스토리텔링을 가능하게 합니다.</li>
+                </ul>
+            </div>
+            <div class="navigation">
+                <a href="#slide1" class="nav-button"><i class="fas fa-arrow-left mr-2"></i> 이전</a>
+                <a href="#slide3" class="nav-button">다음 <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+            <div class="slide-counter">2 / 26</div>
+        </section>
+
+        <!-- Slide 3: Introducing Matplotlib & Seaborn -->
+        <section class="slide" id="slide3">
+            <h2 class="content-title"><i class="fas fa-tools mr-3 text-blue-500"></i>오늘의 주인공: Matplotlib & Seaborn</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 content-text">
+                <div>
+                    <h3 class="text-2xl font-semibold mb-3"><i class="fab fa-python mr-2"></i>Matplotlib</h3>
+                    <p>Python에서 정적, 대화형 및 애니메이션 시각화를 생성하기 위한 포괄적인 라이브러리로서, 그 토대적인 성격을 강조할 필요가 있습니다. Matplotlib의 핵심 구성 요소는 Figure, Axes 및 Artist입니다.</p>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-semibold mb-3"><i class="fas fa-paint-brush mr-2"></i>Seaborn</h3>
+                    <p>Matplotlib 위에 구축된 고수준 인터페이스를 제공하는 Python 데이터 시각화 라이브러리로서, 매력적이고 유익한 통계 그래픽을 쉽게 만들 수 있도록 설계되었습니다. Seaborn은 Pandas DataFrame과 원활하게 통합되며 통계적 시각화에 중점을 둡니다.</p>
+                </div>
+            </div>
+            <p class="mt-8 text-xl font-medium text-center w-full">Matplotlib과 Seaborn의 시너지 효과는 데이터 시각화를 위한 포괄적인 툴킷을 제공합니다!</p>
+            <div class="navigation">
+                <a href="#slide2" class="nav-button"><i class="fas fa-arrow-left mr-2"></i> 이전</a>
+                <a href="#slide4" class="nav-button">다음 <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+            <div class="slide-counter">3 / 26</div>
+        </section>
+
+        <!-- Slide 4: Roadmap -->
+        <section class="slide" id="slide4">
+            <h2 class="content-title"><i class="fas fa-map-signs mr-3 text-green-500"></i>오늘 우리가 함께할 여정</h2>
+            <div class="content-text">
+                <ol class="list-decimal list-inside text-left space-y-3 text-xl">
+                    <li><b>Matplotlib 기초 다지기:</b> 핵심 개념(Figure, Axes, Artist), 기본 플롯 유형(선, 산점도, 막대, 히스토그램, 파이 차트), 사용자 정의 옵션(제목, 레이블, 범례, 축, 스타일) 및 서브플롯 작업.</li>
+                    <li><b>Seaborn 활용법 마스터:</b> Matplotlib과의 관계, 특화된 통계 플롯(분포, 관계, 범주) 및 테마와 색상 팔레트 사용자 정의.</li>
+                    <li><b>실전! 탐색적 데이터 분석 (EDA):</b> 라이브러리 활용 실제 예제와 함께 탐색적 데이터 분석 수행 방법.</li>
+                    <li><b>고급 팁 및 마무리:</b> 효과적인 시각화 생성을 위한 고급 주제 및 팁, 결론.</li>
+                </ol>
+                 <p class="mt-4">본 보고서의 목표는 독자에게 Matplotlib과 Seaborn을 사용한 데이터 시각화에 대한 강력한 이해를 제공하여 다양한 플롯을 생성하고 효과적으로 사용자 정의하며 이러한 기술을 탐색적 데이터 분석(EDA)에 적용하고 궁극적으로 이 주제에 대한 공개 강연을 준비할 수 있도록 하는 것입니다.</p>
+            </div>
+            <div class="navigation">
+                <a href="#slide3" class="nav-button"><i class="fas fa-arrow-left mr-2"></i> 이전</a>
+                <a href="#slide5" class="nav-button">다음 <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+            <div class="slide-counter">4 / 26</div>
+        </section>
+
+        <!-- Slide 5: Matplotlib - Section Intro -->
+        <section class="slide" id="slide5">
+            <h1 class="slide-title"><i class="fab fa-python mr-4"></i>Matplotlib: 파이썬 플로팅의 기초</h1>
+            <p class="slide-subtitle">모든 시각화의 탄탄한 기반을 다집니다.</p>
+            <div class="navigation">
+                <a href="#slide4" class="nav-button"><i class="fas fa-arrow-left mr-2"></i> 이전</a>
+                <a href="#slide6" class="nav-button">다음 <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+            <div class="slide-counter">5 / 26</div>
+        </section>
+
+        <!-- Slide 6: Matplotlib Core Concepts -->
+        <section class="slide" id="slide6">
+            <h2 class="content-title"><i class="fas fa-puzzle-piece mr-3 text-indigo-500"></i>Matplotlib 핵심 개념</h2>
+            <div class="content-text grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="p-4 border rounded-lg shadow-sm bg-gray-50">
+                    <h3 class="text-xl font-semibold mb-2"><i class="fas fa-object-group mr-2"></i>Figure</h3>
+                    <p>모든 플롯 요소(하나 이상의 Axes 포함)를 담는 최상위 컨테이너입니다. 이는 전체 이미지 또는 페이지를 나타냅니다. Figure는 시각화가 그려지는 캔버스 역할을 하며, 그 역할을 이해하는 것은 최종 플롯 출력의 전체 레이아웃과 크기를 관리하는 데 중요합니다.</p>
+                </div>
+                <div class="p-4 border rounded-lg shadow-sm bg-gray-50">
+                    <h3 class="text-xl font-semibold mb-2"><i class="fas fa-chart-area mr-2"></i>Axes</h3>
+                    <p>Figure 내의 플롯 영역으로서 데이터 공간, 축 선, 눈금, 레이블 및 제목을 포함합니다. Figure에는 서브플롯 형태로 배열된 여러 개의 Axes가 있을 수 있습니다. 'Axes'(복수)는 플롯 영역을, 'Axis'(단수)는 단일 x 또는 y 축을 의미합니다.</p>
+                </div>
+                <div class="p-4 border rounded-lg shadow-sm bg-gray-50">
+                    <h3 class="text-xl font-semibold mb-2"><i class="fas fa-paint-roller mr-2"></i>Artist</h3>
+                    <p>선, 마커, 텍스트, 이미지 등 Figure에 보이는 모든 요소를 나타냅니다. Axes 또한 Artist이며 대부분의 Artist는 특정 Axes에 연결됩니다. Artist 개념은 Matplotlib 플롯의 모든 요소를 상호 작용하고 사용자 정의하는 통합된 방법을 제공합니다.</p>
+                </div>
+            </div>
+            <div class="navigation">
+                <a href="#slide5" class="nav-button"><i class="fas fa-arrow-left mr-2"></i> 이전</a>
+                <a href="#slide7" class="nav-button">다음 <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+            <div class="slide-counter">6 / 26</div>
+        </section>
+
+        <!-- Slide 7: Matplotlib Pyplot & Basic Plot Example -->
+        <section class="slide" id="slide7">
+            <h2 class="content-title"><i class="fas fa-magic mr-3 text-pink-500"></i>pyplot을 사용한 기본 플로팅</h2>
+            <div class="content-text">
+                <p><code>matplotlib.pyplot</code>은 Matplotlib의 모듈로서, 플로팅을 위한 상태 기반 인터페이스를 제공합니다 (종종 <code>plt</code>로 가져옴). pyplot 인터페이스는 초보자와 빠르고 대화형 플로팅에 더 편리한 경우가 많습니다.</p>
+                <p class="mt-2"><b>선 플롯 (Line Plot) 예시:</b> 두 데이터 세트 간의 관계를 표시하며, 종종 시간과 같은 연속 변수에 따른 추세를 보여줍니다.</p>
+                <div class="code-block">
+<pre><code>import matplotlib.pyplot as plt
+import numpy as np
+
+# 데이터 준비
+x = np.linspace(0, 10, 100)
+y = np.sin(x)
+
+# 선 플롯 생성
+plt.plot(x, y, label='sin(x)', color='blue', linestyle='-', linewidth=2, marker='o', markersize=4)
+
+# 제목 및 레이블 추가
+plt.title("간단한 선 플롯 예시")
+plt.xlabel("X 축 (시간 또는 다른 변수)")
+plt.ylabel("Y 축 (값)")
+plt.legend() # 범례 표시
+plt.grid(True) # 그리드 표시
+# plt.show() # 실제 파이썬 환경에서 실행 시 필요
+</code></pre>
+                 <p class="mt-2 text-sm text-gray-500">* 위 코드는 개념 설명용이며, 실제 Python 환경에서 실행하여 결과를 확인하세요.</p>
+            </div>
+            <div class="navigation">
+                <a href="#slide6" class="nav-button"><i class="fas fa-arrow-left mr-2"></i> 이전</a>
+                <a href="#slide8" class="nav-button">다음 <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+            <div class="slide-counter">7 / 26</div>
+        </section>
+
+        <!-- Slide 8: Matplotlib Other Basic Plots (Brief) -->
+        <section class="slide" id="slide8">
+            <h2 class="content-title"><i class="fas fa-chart-pie mr-3 text-purple-500"></i>Matplotlib 기타 기본 플롯</h2>
+            <div class="content-text grid grid-cols-2 gap-6 text-lg">
+                <div>
+                    <h3 class="font-semibold"><i class="fas fa-braille mr-2"></i>산점도 (Scatter Plot)</h3>
+                    <p><code>plt.scatter()</code>: 개별 데이터 점을 플로팅하여 두 수치 변수 간의 관계(상관 관계, 클러스터, 이상치)를 시각화합니다.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold"><i class="fas fa-chart-bar mr-2"></i>막대 플롯 (Bar Plot)</h3>
+                    <p><code>plt.bar()</code>, <code>plt.barh()</code>: 각 범주에 대한 값을 나타내는 직사각형 막대를 사용하여 범주형 데이터를 비교합니다.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold"><i class="fas fa-chart-area mr-2"></i>히스토그램 (Histogram)</h3>
+                    <p><code>plt.hist()</code>: 데이터를 구간으로 나누고 각 구간에 있는 값의 빈도를 보여줌으로써 단일 수치 변수의 분포를 시각화합니다.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold"><i class="fas fa-chart-pie mr-2"></i>파이 차트 (Pie Chart)</h3>
+                    <p><code>plt.pie()</code>: 원을 조각으로 나타내어 전체에서 서로 다른 범주의 비율을 보여주는 데 사용됩니다.</p>
+                </div>
+            </div>
+            <p class="mt-6 text-xl">각 플롯은 데이터의 특성과 전달하고자 하는 메시지에 따라 선택되며, 다양한 매개변수를 통해 사용자 정의할 수 있습니다.</p>
+            <div class="navigation">
+                <a href="#slide7" class="nav-button"><i class="fas fa-arrow-left mr-2"></i> 이전</a>
+                <a href="#slide9" class="nav-button">다음 <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+            <div class="slide-counter">8 / 26</div>
+        </section>
+
+        <!-- Slide 9: Matplotlib Customization -->
+        <section class="slide" id="slide9">
+            <h2 class="content-title"><i class="fas fa-palette mr-3 text-teal-500"></i>플롯 사용자 정의</h2>
+            <div class="content-text">
+                <p>Matplotlib는 플롯의 거의 모든 요소를 사용자 정의할 수 있는 강력한 기능을 제공합니다.</p>
+                <ul>
+                    <li><i class="fas fa-check-circle"></i>제목 및 레이블:<br>plt.title(), ax.set_title(), plt.xlabel(), ax.set_xlabel() 등으로 플롯과 축에 명확한 설명을 추가합니다. <br>(fontsize, color, loc, pad 등 매개변수 활용)</br></li></br>
+                    <li><i class="fas fa-check-circle"></i>범례: <br>plt.legend(), ax.legend()로 여러 데이터 시리즈를 식별합니다. (loc, ncol, title 등 매개변수 활용)</li></br>
+                    <li><i class="fas fa-check-circle"></i>축 제어: <br>plt.xlim(), ax.set_xlim(), plt.xticks(), ax.set_xticks() 등으로 데이터 범위와 눈금을 정밀하게 제어합니다. <br>matplotlib.ticker를 활용한 고급 제어도 가능합니다.</li></br></br>
+                    <li><i class="fas fa-check-circle"></i>스타일 시트 및 rcParams: <br>plt.style.use('stylename')로 미리 정의된 스타일을 적용하거나, rcParams를 직접 수정하여 전역적인 플롯 속성(선 너비, 색상 주기 등)을 변경합니다.</li></br>
+                </ul>
+            </div>
+            <div class="navigation">
+                <a href="#slide8" class="nav-button"><i class="fas fa-arrow-left mr-2"></i> 이전</a>
+                <a href="#slide10" class="nav-button">다음 <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+            <div class="slide-counter">9 / 26</div>
+        </section>
+
+        <!-- Slide 10: Matplotlib Subplots -->
+        <section class="slide" id="slide10">
+            <h2 class="content-title"><i class="fas fa-th-large mr-3 text-orange-500"></i>서브플롯 작업</h2>
+            <div class="content-text">
+                <p>하나의 Figure 안에 여러 개의 Axes(플롯)를 배열하여 다양한 관점에서 데이터를 비교할 수 있습니다.</p>
+                <ul>
+                    <li><i class="fas fa-check-circle"></i>plt.subplot(nrows, ncols, index):<br> 개별 서브플롯을 만들고 선택하는 기본적인 방법입니다. Figure 내에서 여러 플롯을 격자 모양으로 배열하는 데 유연성을 제공합니다.</li>
+                    <li><i class="fas fa-check-circle"></i>plt.subplots(nrows, ncols): <br>Figure 객체와 Axes 객체들의 배열(2D NumPy 배열)을 반환합니다. 반환된 배열을 사용하여 개별 서브플롯에 접근하고 플롯하는, 더 Pythonic하고 편리한 방법입니다.</li>
+                </ul>
+                <div class="code-block">
+<pre><code>fig, axs = plt.subplots(2, 2, figsize=(10, 8)) # 2x2 서브플롯
+
+axs[0, 0].plot(np.random.rand(10), np.random.rand(10), 'o-')
+axs[0, 0].set_title('Subplot 1')
+
+axs[0, 1].bar(['A', 'B', 'C'], [5, 7, 3])
+axs[0, 1].set_title('Subplot 2')
+
+# axs[1, 0] ... , axs[1, 1] ...
+
+plt.tight_layout() # 서브플롯 간 간격 자동 조절
+# plt.show()
+</code></pre>
+                 <p class="mt-2 text-sm text-gray-500">* 위 코드는 개념 설명용입니다.</p>
+            </div>
+            <div class="navigation">
+                <a href="#slide9" class="nav-button"><i class="fas fa-arrow-left mr-2"></i> 이전</a>
+                <a href="#slide11" class="nav-button">다음 <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+            <div class="slide-counter">10 / 26</div>
+        </section>
+
+        <!-- Slide 11: Seaborn - Section Intro -->
+        <section class="slide" id="slide11">
+            <h1 class="slide-title"><i class="fas fa-paint-brush mr-4"></i>Seaborn: 통계적 시각화 향상</h1>
+            <p class="slide-subtitle">Matplotlib을 기반으로 통계적 데이터 표현에 특화된 라이브러리입니다.</p>
+            <div class="navigation">
+                <a href="#slide10" class="nav-button"><i class="fas fa-arrow-left mr-2"></i> 이전</a>
+                <a href="#slide12" class="nav-button">다음 <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+            <div class="slide-counter">11 / 26</div>
+        </section>
+
+        <!-- Slide 12: Seaborn Features & Relationship with Matplotlib -->
+        <section class="slide" id="slide12">
+            <h2 class="content-title"><i class="fas fa-star mr-3 text-yellow-400"></i>Seaborn 소개 및 Matplotlib과의 관계</h2>
+            <div class="content-text">
+                <p class="mb-4">Seaborn은 Matplotlib 위에 구축되었으며 통계 플롯 생성을 위한 더 높은 수준의 인터페이스를 제공합니다.<br> 통계적 시각화와 매력적인 기본 설정에 중점을 둡니다.</p>
+                <ul>
+                    <li><i class="fas fa-lightbulb"></i>Seaborn은 렌더링을 위해 Matplotlib을 사용하며, 사용자는 추가 사용자 정의를 위해 Matplotlib의 기능을 계속 액세스하고 사용할 수 있습니다.</li>
+                    <li><i class="fas fa-lightbulb"></i>통계적 관계(회귀, 분포 등)를 시각화하는 데 최적화된 함수들.</li>
+                    <li><i class="fas fa-lightbulb"></i>Pandas DataFrame과의 뛰어난 호환성.</li>
+                    <li><i class="fas fa-lightbulb"></i>기본적으로 제공되는 미려한 테마와 색상 팔레트 (sns.set_theme(), sns.set_style(), sns.color_palette(), sns.set_palette()).<br>축 스파인을 제거하기 위한 sns.despine()도 유용합니다.</li>
+                </ul>
+            </div>
+            <div class="navigation">
+                <a href="#slide11" class="nav-button"><i class="fas fa-arrow-left mr-2"></i> 이전</a>
+                <a href="#slide13" class="nav-button">다음 <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+            <div class="slide-counter">12 / 26</div>
+        </section>
+
+        <!-- Slide 13: Seaborn Plot Types 1: Distribution & Relational -->
+        <section class="slide" id="slide13">
+            <h2 class="content-title"><i class="fas fa-chart-area mr-3 text-cyan-500"></i>Seaborn 주요 플롯 (1): 분포 및 관계</h2>
+            <div class="content-text grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-xl font-semibold mb-2">분포 플롯</h3>
+                    <ul>
+                        <li><i class="fas fa-chart-bar"></i><b><code>histplot()</code> / <code>displot(kind="hist")</code>:</b> 히스토그램</li>
+                        <li><i class="fas fa-chart-bar"></i><b><code>kdeplot()</code> / <code>displot(kind="kde")</code>:</b> 커널 밀도 추정 플롯</li>
+                        <li><i class="fas fa-chart-bar"></i><b><code>jointplot()</code>:</b> 두 변수 간의 이변량 플롯과 각 변수의 주변 분포</li>
+                        <li><i class="fas fa-chart-bar"></i><b><code>pairplot()</code>:</b> DataFrame의 모든 수치 변수 쌍에 대한 산점도 행렬</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-2">관계 플롯</h3>
+                    <ul>
+                        <li><i class="fas fa-chart-bar"></i><b><code>scatterplot() / relplot(kind="scatter"):</code></b><br><li>산점도 (hue, size, style 활용)</li>
+                        <li><i class="fas fa-chart-bar"></i><b><code>lineplot()</code> / <code>relplot(kind="line")</code>:</b><br><li> 선 플롯 (추세, 오차 막대, hue, style 활용)</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="navigation">
+                <a href="#slide12" class="nav-button"><i class="fas fa-arrow-left mr-2"></i> 이전</a>
+                <a href="#slide14" class="nav-button">다음 <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+            <div class="slide-counter">13 / 26</div>
+        </section>
+
+        <!-- Slide 14: Seaborn Plot Types 2: Categorical -->
+        <section class="slide" id="slide14">
+            <h2 class="content-title"><i class="fas fa-bars mr-3 text-lime-500"></i>Seaborn 주요 플롯 (2): 범주형 데이터</h2>
+            <div class="content-text grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-xl font-semibold mb-2">범주형 분포 플롯</h3>
+                    <ul>
+                        <li><i class="fas fa-chart-bar"></i><b><code>boxplot()</code> / <code>catplot(kind="box")</code>:</b> 상자 그림</li>
+                        <li><i class="fas fa-chart-bar"></i><b><code>violinplot()</code> / <code>catplot(kind="violin")</code>:</b> 바이올린 플롯</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-2">범주형 통계 플롯</h3>
+                    <ul>
+                        <li><i class="fas fa-chart-bar"></i><b><code>barplot()</code> / <code>catplot(kind="bar")</code>:</b> 막대 그림 (평균 등)</li>
+                        <li><i class="fas fa-chart-bar"></i><b><code>countplot()</code> / <code>catplot(kind="count")</code>:</b> 빈도수 막대 그림</li>
+                    </ul>
+                </div>
+            </div>
+             <p class="mt-6 text-xl w-full text-center"><code>catplot()</code>은 범주형 데이터 시각화를 위한 통합 인터페이스입니다.</p>
+            <div class="navigation">
+                <a href="#slide13" class="nav-button"><i class="fas fa-arrow-left mr-2"></i> 이전</a>
+                <a href="#slide15" class="nav-button">다음 <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+            <div class="slide-counter">14 / 26</div>
+        </section>
+
+        <!-- Slide 15: EDA - Section Intro -->
+        <section class="slide" id="slide15">
+            <h1 class="slide-title"><i class="fas fa-search mr-4"></i>실전! 탐색적 데이터 분석 (EDA)</h1>
+            <p class="slide-subtitle">Matplotlib과 Seaborn을 활용하여 데이터 속 숨겨진 인사이트를 발견합니다.</p>
+            <div class="navigation">
+                <a href="#slide14" class="nav-button"><i class="fas fa-arrow-left mr-2"></i> 이전</a>
+                <a href="#slide16" class="nav-button">다음 <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+            <div class="slide-counter">15 / 26</div>
+        </section>
+
+        <!-- Slide 16: EDA - Understanding Distribution -->
+        <section class="slide" id="slide16">
+            <h2 class="content-title"><i class="fas fa-magnifying-glass-chart mr-3 text-red-500"></i>1. 데이터 분포 이해</h2>
+            <div class="content-text">
+                <p>단일 변수의 분포를 시각화하여 중심 경향(평균, 중앙값), 산포도(분산, 표준 편차, 범위, IQR) 및 모양(왜도, 첨도, 최빈값)을 식별합니다.</p>
+                <ul>
+                    <br><li><i class="fas fa-cogs"></i><b>히스토그램 (<code>plt.hist()</code>, <code>sns.histplot()</code>) 및 KDE 플롯 (<code>sns.kdeplot()</code>):</b> 단일 변수의 분포 시각화.</li>
+                    <li><i class="fas fa-cogs"></i><b>상자 그림 (<code>plt.boxplot()</code>, <code>sns.boxplot()</code>):</b> 사분위수, 중앙값, 잠재적 이상치를 포함하여 분포 요약.</li>
+                </ul>
+            </div>
+            <div class="navigation">
+                <a href="#slide15" class="nav-button"><i class="fas fa-arrow-left mr-2"></i> 이전</a>
+                <a href="#slide17" class="nav-button">다음 <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+            <div class="slide-counter">16 / 26</div>
+        </section>
+
+        <!-- Slide 17: EDA - Exploring Relationships -->
+        <section class="slide" id="slide17">
+            <h2 class="content-title"><i class="fas fa-link mr-3 text-purple-500"></i>2. 변수 간 관계 탐색</h2>
+            <div class="content-text">
+                <p>여러 변수들 사이의 관계를 시각화하여 상관관계, 패턴, 그룹 등을 발견합니다.</p>
+                <ul>
+                    <li></li><li><i class="fas fa-cogs"></i><b>산점도 (<code>plt.scatter()</code>, <code>sns.scatterplot()</code>):</b><li> 두 수치 변수 간의 관계 (상관 관계: 양의/음의/없음, 패턴: 선형/비선형, 이상치) 시각화.</li>
+                    <li><i class="fas fa-cogs"></i><b>히트맵 (<code>plt.imshow()</code>와 상관 행렬, <code>sns.heatmap()</code>):</b><li> 여러 수치 변수 간의 상관 관계 시각화. 색상 강도와 방향이 상관 관계의 강도와 유형을 나타냄.</li>
+                </ul>
+            </div>
+            <div class="navigation">
+                <a href="#slide16" class="nav-button"><i class="fas fa-arrow-left mr-2"></i> 이전</a>
+                <a href="#slide18" class="nav-button">다음 <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+            <div class="slide-counter">17 / 26</div>
+        </section>
+        
+        <!-- Slide 18: EDA - Categorical Data Analysis -->
+        <section class="slide" id="slide18">
+            <h2 class="content-title"><i class="fas fa-tags mr-3 text-green-500"></i>3. 범주형 데이터 분석</h2>
+            <div class="content-text">
+                <p>하나 이상의 범주형 변수에서 서로 다른 범주의 빈도를 이해합니다.</p>
+                <ul>
+                    <li><i class="fas fa-cogs"></i><b>막대 플롯 (<code>plt.bar()</code>, <code>sns.barplot()</code>) 및 개수 플롯 (<code>sns.countplot()</code>):</b> 막대 높이를 비교하여 범주 분포를 이해합니다.</li>
+                </ul>
+                <p class="mt-4"><b>사례 연구:</b> 샘플 데이터 세트('tips.csv', 'Iris', 'DJIA')를 사용한 EDA 워크플로우의 실제 예시. Matplotlib과 Seaborn을 모두 사용하여 데이터를 로드하고 이러한 EDA 플롯을 만드는 방법을 보여주는 코드 예시를 제공합니다.</p>
+            </div>
+            <div class="navigation">
+                <a href="#slide17" class="nav-button"><i class="fas fa-arrow-left mr-2"></i> 이전</a>
+                <a href="#slide19" class="nav-button">다음 <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+            <div class="slide-counter">18 / 26</div>
+        </section>
+
+        
+        <section class="slide" id="slide15">
+            <h1 class="slide-title"><i class="fas fa-search mr-4"></i>실전! 탐색적 데이터 분석 (EDA)</h1>
+            <p class="slide-subtitle">Matplotlib과 Seaborn을 활용하여 데이터 속 숨겨진 인사이트를 발견합니다.</p>
+            <div class="navigation">
+                <a href="#slide14" class="nav-button"><i class="fas fa-arrow-left mr-2"></i> 이전</a>
+                <a href="#slide16" class="nav-button">다음 <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+            <div class="slide-counter">15 / 26</div>
+        </section>
+
+        <section class="slide" id="slide16">
+            <h2 class="content-title"><i class="fas fa-magnifying-glass-chart mr-3 text-red-500"></i>1. 데이터 분포 이해</h2>
+            <div class="content-text">
+                <p>단일 변수의 분포를 시각화하여 중심 경향(평균, 중앙값), 산포도(분산, 표준 편차, 범위, IQR) 및 모양(왜도, 첨도, 최빈값)을 식별합니다.</p>
+                <ul>
+                    <li><i class="fas fa-cogs"></i><b>히스토그램 (<code>plt.hist()</code>, <code>sns.histplot()</code>) 및 KDE 플롯 (<code>sns.kdeplot()</code>):</b><br> 단일 변수의 분포 시각화.</li>
+                    <li><i class="fas fa-cogs"></i><b>상자 그림 (<code>plt.boxplot()</code>, <code>sns.boxplot()</code>):</b><br> 사분위수, 중앙값, 잠재적 이상치를 포함하여 분포 요약.</li>
+                </ul>
+            </div>
+            <div class="navigation">
+                <a href="#slide15" class="nav-button"><i class="fas fa-arrow-left mr-2"></i> 이전</a>
+                <a href="#slide17" class="nav-button">다음 <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+            <div class="slide-counter">16 / 26</div>
+        </section>
+
+        <section class="slide" id="slide17">
+            <h2 class="content-title"><i class="fas fa-link mr-3 text-purple-500"></i>2. 변수 간 관계 탐색</h2>
+            <div class="content-text">
+                <p>여러 변수들 사이의 관계를 시각화하여 상관관계, 패턴, 그룹 등을 발견합니다.</p>
+                <ul>
+                    <li><i class="fas fa-cogs"></i><b>산점도 (<code>plt.scatter()</code>, <code>sns.scatterplot()</code>):</b><br> 두 수치 변수 간의 관계 (상관 관계: 양의/음의/없음, 패턴: 선형/비선형, 이상치) 시각화.</li>
+                    <li><i class="fas fa-cogs"></i><b>히트맵 (<code>plt.imshow()</code>와 상관 행렬, <code>sns.heatmap()</code>):</b><br> 여러 수치 변수 간의 상관 관계 시각화. 색상 강도와 방향이 상관 관계의 강도와 유형을 나타냄.</li>
+                </ul>
+            </div>
+            <div class="navigation">
+                <a href="#slide16" class="nav-button"><i class="fas fa-arrow-left mr-2"></i> 이전</a>
+                <a href="#slide18" class="nav-button">다음 <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+            <div class="slide-counter">17 / 26</div>
+        </section>
+        
+        <section class="slide" id="slide18">
+            <h2 class="content-title"><i class="fas fa-tags mr-3 text-green-500"></i>3. 범주형 데이터 분석</h2>
+            <div class="content-text">
+                <p>하나 이상의 범주형 변수에서 서로 다른 범주의 빈도를 이해합니다.</p>
+                <ul>
+                    <li><i class="fas fa-cogs"></i><b>막대 플롯 (<code>plt.bar()</code>, <code>sns.barplot()</code>) 및 개수 플롯 (<code>sns.countplot()</code>):</b><br> 막대 높이를 비교하여 범주 분포를 이해합니다.</li>
+                </ul>
+                <p class="mt-4">이전 단계들에서 배운 시각화 기법들을 활용하여 범주별 데이터의 특성을 파악합니다.</p>
+            </div>
+            <div class="navigation">
+                <a href="#slide17" class="nav-button"><i class="fas fa-arrow-left mr-2"></i> 이전</a>
+                <a href="#slide19" class="nav-button">다음 <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+            <div class="slide-counter">18 / 26</div>
+        </section>
+
+        <!-- === 여기서부터 새로운/수정된 슬라이드 === -->
+
+        <section class="slide" id="slide19">
+            <h2 class="content-title"><i class="fas fa-vials mr-3 text-indigo-500"></i>4. EDA 실제 사례 연구: 샘플 데이터셋 활용</h2>
+            <div class="content-text">
+                <p>이론을 실제 데이터에 적용해보는 것은 매우 중요합니다.<br>여기서는 잘 알려진 샘플 데이터셋을 사용하여 Matplotlib과 Seaborn을 활용한 EDA 과정을 살펴보겠습니다.</p>
+                <ul class="mt-4">
+                    <li><i class="fas fa-database"></i><b>'tips.csv':</b> 레스토랑 지불 데이터 (팁, 총액, 성별, 흡연여부, 요일, 시간, 인원수).</li>
+                    <li><i class="fas fa-leaf"></i><b>'Iris':</b> 붓꽃 데이터 (꽃받침/꽃잎의 길이/너비, 붓꽃 품종).</li>
+                    <li><i class="fas fa-chart-line"></i><b>'DJIA' (Dow Jones Industrial Average):</b> 주가 데이터 (시계열 데이터 예시로 활용 가능).</li>
+                </ul>
+                <p class="mt-4">각 데이터셋의 특성에 맞춰 다양한 질문을 던지고, 시각화를 통해 답을 찾아가는 과정을 보여드리겠습니다.</p>
+            </div>
+            <div class="navigation">
+                <a href="#slide18" class="nav-button"><i class="fas fa-arrow-left mr-2"></i> 이전</a>
+                <a href="#slide20" class="nav-button">다음 <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+            <div class="slide-counter">19 / 26</div>
+        </section>
+
+        <section class="slide" id="slide20">
+            <h2 class="content-title"><i class="fas fa-utensils mr-3 text-orange-500"></i>사례 연구 1: `tips` 데이터셋 분석</h2>
+            <div class="content-text">
+                <p><b>데이터셋 개요:</b> 레스토랑에서 손님들이 지불한 금액, 팁, 성별, 흡연 여부, 요일, 시간, 일행 수 등의 정보를 담고 있습니다.</p>
+                <p class="mt-3"><b>탐색 질문 예시:</b></p>
+                <ul>
+                    <li><i class="fas fa-question"></i>총 식사 금액과 팁은 어떤 관계가 있을까? (<code>sns.scatterplot</code>, <code>sns.lmplot</code>)</li>
+                    <li><i class="fas fa-question"></i>요일별, 시간대별 팁의 분포는 어떻게 다를까? (<code>sns.boxplot</code>, <code>sns.violinplot</code>)</li>
+                    <li><i class="fas fa-question"></i>흡연자와 비흡연자의 팁 지불 경향에 차이가 있을까? (<code>sns.barplot</code>, <code>sns.stripplot</code>)</li>
+                </ul>
+                <p class="mt-3"><b>시각화 코드 (개념):</b></p>
+                <div class="code-block">
+<pre><code>import seaborn as sns
+import matplotlib.pyplot as plt
+# tips = sns.load_dataset('tips') # 데이터 로드
+
+# 예시 1: 식사 금액과 팁의 관계 (흡연 여부별)
+# sns.scatterplot(data=tips, x="total_bill", y="tip", hue="smoker")
+# plt.title("Total Bill vs Tip (by Smoker)")
+
+# 예시 2: 요일별 팁 분포
+# sns.boxplot(data=tips, x="day", y="tip")
+# plt.title("Tip Distribution by Day")
+</code></pre>
+                <p class="mt-1 text-sm text-gray-500">* 위 코드는 실제 시각화 생성 시 사용되는 함수 예시입니다.</p>
+                <p class="mt-2">이러한 시각화를 통해 팁의 크기가 식사 금액에 비례하는 경향, 특정 요일이나 시간대에 팁이 더 많거나 적은 패턴, 흡연 여부가 팁에 미치는 영향 등을 파악할 수 있습니다.</p>
+            </div>
+            <div class="navigation">
+                <a href="#slide19" class="nav-button"><i class="fas fa-arrow-left mr-2"></i> 이전</a>
+                <a href="#slide21" class="nav-button">다음 <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+            <div class="slide-counter">20 / 26</div>
+        </section>
+
+        <section class="slide" id="slide21">
+            <h2 class="content-title"><i class="fas fa-seedling mr-3 text-green-500"></i>사례 연구 2: `Iris` 데이터셋 분석</h2>
+            <div class="content-text">
+                <p><b>데이터셋 개요:</b> 세 가지 붓꽃 품종(Setosa, Versicolor, Virginica)에 대한 꽃받침(sepal)과 꽃잎(petal)의 길이 및 너비 측정값을 포함합니다.</p>
+                <p class="mt-3"><b>탐색 질문 예시:</b></p>
+                <ul>
+                    <li><i class="fas fa-question"></i>각 붓꽃 품종별로 꽃의 특징(길이, 너비) 분포는 어떻게 다른가? (<code>sns.boxplot</code>, <code>sns.violinplot</code>)</li>
+                    <li><i class="fas fa-question"></i>꽃받침 길이와 너비, 꽃잎 길이와 너비 간에는 어떤 관계가 있으며, 품종별로 차이가 있는가? (<code>sns.pairplot</code>, <code>sns.scatterplot</code>)</li>
+                </ul>
+                <p class="mt-3"><b>시각화 코드 (개념):</b></p>
+                <div class="code-block">
+<pre><code>import seaborn as sns
+import matplotlib.pyplot as plt
+# iris = sns.load_dataset('iris') # 데이터 로드
+
+# 예시 1: 전체 변수 간 관계 및 품종별 분포
+# sns.pairplot(data=iris, hue="species")
+# plt.suptitle("Pair Plot of Iris Dataset by Species", y=1.02)
+
+# 예시 2: 품종별 꽃잎 너비 분포
+# sns.violinplot(data=iris, x="species", y="petal_width")
+# plt.title("Petal Width Distribution by Species")
+</code></pre>
+                <p class="mt-1 text-sm text-gray-500">* 위 코드는 실제 시각화 생성 시 사용되는 함수 예시입니다.</p>
+                <p class="mt-2"><code>pairplot</code>을 통해 모든 특징들 간의 관계를 한눈에 볼 수 있고, 특정 특징(예: 꽃잎 너비)이 품종을 구분하는 데 얼마나 유용한지 시각적으로 확인할 수 있습니다.</p>
+            </div>
+            <div class="navigation">
+                <a href="#slide20" class="nav-button"><i class="fas fa-arrow-left mr-2"></i> 이전</a>
+                <a href="#slide22" class="nav-button">다음 <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+            <div class="slide-counter">21 / 26</div>
+        </section>
+
+        <section class="slide" id="slide22">
+            <h2 class="content-title"><i class="fas fa-clipboard-check mr-3 text-blue-500"></i>EDA 사례 연구 요약 및 다음 단계</h2>
+            <div class="content-text">
+                <p>지금까지 `tips`와 `Iris` 데이터셋을 통해 EDA 과정을 간략히 살펴보았습니다.</p>
+                <ul>
+                    <li><i class="fas fa-lightbulb"></i>실제 데이터셋에 다양한 시각화 기법을 적용함으로써, 데이터의 구조, 패턴, 이상치, 변수 간 관계 등을 더 깊이 이해할 수 있습니다.</li>
+                    <li><i class="fas fa-lightbulb"></i>질문을 정의하고, 그에 맞는 적절한 플롯을 선택하여 시각화하고, 결과를 해석하는 반복적인 과정이 EDA의 핵심입니다.</li>
+                    <li><i class="fas fa-lightbulb"></i>Matplotlib과 Seaborn은 이러한 탐색적 분석을 효과적으로 수행할 수 있도록 강력한 도구를 제공합니다.</li>
+                </ul>
+                <p class="mt-4">이제 데이터 시각화를 더욱 효과적으로 만들고, 다양한 상황에 대처하기 위한<br><b>고급 주제 및 유용한 팁</b>들을 알아보겠습니다.</p>
+            </div>
+            <div class="navigation">
+                <a href="#slide21" class="nav-button"><i class="fas fa-arrow-left mr-2"></i> 이전</a>
+                <a href="#slide23" class="nav-button">다음 <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+            <div class="slide-counter">22 / 26</div>
+        </section>
+
+        <!-- Slide 23: Advanced - Section Intro (기존 slide19 내용) -->
+        <section class="slide" id="slide23">
+            <h1 class="slide-title"><i class="fas fa-rocket mr-4"></i>고급 주제 및 팁</h1>
+            <p class="slide-subtitle">효과적인 시각화를 위한 추가 전략과 유용한 기능들을 알아봅니다.</p>
+            <div class="navigation">
+                <a href="#slide22" class="nav-button"><i class="fas fa-arrow-left mr-2"></i> 이전</a>
+                <a href="#slide24" class="nav-button">다음 <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+            <div class="slide-counter">23 / 26</div>
+        </section>
+
+        <!-- Slide 24: Advanced Tips (기존 slide20 내용) -->
+        <section class="slide" id="slide24">
+            <h2 class="content-title"><i class="fas fa-lightbulb mr-3 text-orange-400"></i>다양한 데이터 유형 작업 및 프레젠테이션 팁</h2>
+            <div class="content-text">
+                <ul>
+                    <li><i class="fas fa-check-circle"></i><b>시계열 데이터:</b><br> Matplotlib 및 Seaborn을 사용하여 시계열 데이터를 플로팅하는 방법을 간략하게 논의하고<br>적절한 인덱싱 및 날짜/시간 정보 형식 지정의 중요성을 언급합니다.</li>
+                    <li><i class="fas fa-check-circle"></i><b>범주형 데이터:</b><br> 범주형 데이터를 플로팅하는 방법을 간략하게 논의하고<br>막대 플롯, 개수 플롯 및 상자 그림과 같은 적절한 플롯 유형 사용을 강조합니다.</li>
+                    <li><i class="fas fa-check-circle"></i><b>플롯에 주석 달기 및 텍스트 추가:</b><br> <code>plt.annotate()</code> 또는 <code>ax.annotate()</code>를 사용하여 특정 데이터 점 또는 관심 영역을 강조 표시하기 위해<br>주석(선택적 화살표가 있는 텍스트 레이블)을 추가하는 방법을 설명합니다.</li>
+                    <li><i class="fas fa-check-circle"></i><b>다양한 형식으로 플롯 저장 및 내보내기:</b><br> <code>plt.savefig()</code> 또는 <code>fig.savefig()</code>를 사용하여 플롯을 파일(예: PNG, JPG, PDF, SVG)에 저장하는 방법을 설명하고<br>다양한 형식의 장단점을 논의합니다.</li>
+                    <li><i class="fas fa-check-circle"></i><b>프레젠테이션을 위한 효과적이고 유익한 시각화 생성 팁:</b><br> 간결하게 유지, 명확하고 간결한 레이블 및 제목 사용, 적절한 색상 및 글꼴 선택,<br>핵심 메시지에 집중 등 플롯 디자인에 대한 일반적인 지침을 제공합니다.</li>
+                </ul>
+            </div>
+            <div class="navigation">
+                <a href="#slide23" class="nav-button"><i class="fas fa-arrow-left mr-2"></i> 이전</a>
+                <a href="#slide25" class="nav-button">다음 <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+            <div class="slide-counter">24 / 26</div>
+        </section>
+
+        <!-- Slide 25: Conclusion (기존 slide21 내용) -->
+        <section class="slide" id="slide25">
+            <h1 class="slide-title"><i class="fas fa-flag-checkered mr-4"></i>결론</h1>
+            <div class="content-text text-center text-xl md:text-2xl">
+                <p class="mb-6">본 보고서에서 다룬 Matplotlib과 Seaborn의 주요 개념과 기능을 요약합니다.<br>이러한 라이브러리의 공식 문서 및 기타 리소스를 통해 제공되는 광범위한 기능을<br>지속적으로 학습하고 더 탐색하는 것의 중요성을 강조합니다.</p>
+                <p class="mb-6">공식 Matplotlib 및 Seaborn 웹사이트, 예시 갤러리, 튜토리얼 및 커뮤니티 포럼과 같은<br>고급 학습을 위한 추가 리소스를 제공합니다.</p>
+                <p class="font-semibold">여러분의 데이터 시각화 여정을 응원합니다!</p>
+            </div>
+            <div class="navigation">
+                <a href="#slide24" class="nav-button"><i class="fas fa-arrow-left mr-2"></i> 이전</a>
+                <a href="#slide26" class="nav-button">다음 <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+            <div class="slide-counter">25 / 26</div>
+        </section>
+        
+        <!-- Slide 26: Q&A and Thank You (기존 slide22 내용) -->
+        <section class="slide" id="slide26">
+            <h1 class="slide-title"><i class="fas fa-comments mr-4"></i>질의응답</h1>
+            <p class="slide-subtitle mb-12">궁금한 점이 있다면 편하게 질문해주세요.</p>
+            <p class="text-6xl font-bold">감사합니다!</p>
+            <i class="far fa-smile-beam text-8xl mt-10 text-yellow-400"></i>
+            <div class="navigation">
+                <a href="#slide25" class="nav-button"><i class="fas fa-arrow-left mr-2"></i> 이전</a>
+                <a href="#slide1" class="nav-button"><i class="fas fa-home mr-2"></i> 처음으로</a>
+            </div>
+            <div class="slide-counter">26 / 26</div>
+        </section>
+
+    </div>
+
+    <script>
+        // 페이지 로드 시 URL에 해시가 없으면 첫 번째 슬라이드로 이동
+        window.addEventListener('DOMContentLoaded', (event) => {
+            if (!window.location.hash) {
+                window.location.hash = '#slide1';
+            }
+        });
+    </script>
+
+</body>
+</html>
