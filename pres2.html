@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>세계 행복 보고서 EDA 발표</title>
+    <!-- Tailwind CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <!-- Google Fonts: Noto Sans KR -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f4f8;
+            margin: 0;
+            overflow: hidden; /* Prevent scrolling */
+        }
+        .presentation-container {
+            position: relative;
+            width: 1280px; /* 16:9 base width */
+            height: 720px; /* 16:9 base height */
+            box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+            background-color: white;
+            overflow: hidden;
+        }
+        .slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 40px;
+            box-sizing: border-box;
+            transition: opacity 0.5s ease-in-out;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .slide.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .slide-content {
+            flex-grow: 1;
+            overflow-y: auto; /* Enable scrolling for content if needed */
+        }
+        .slide-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .slide-section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #34495e;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        .slide-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .slide-list {
+            list-style: disc;
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        .slide-list li {
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+        .code-block {
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+        .code-block pre {
+            margin: 0;
+            padding: 0;
+        }
+        .code-block code {
+             /* Prevent extra indentation from HTML source */
+             display: block;
+        }
+        .code-block .comment { color: #a0a0a0; }
+        .code-block .keyword { color: #cc99cd; font-weight: bold; }
+        .code-block .string { color: #7ec699; }
+        .code-block .number { color: #f08d49; }
+        .code-block .function { color: #61afef; }
+        .code-block .class { color: #e6c07b; }
+
+        .navigation-buttons {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10;
+        }
+        .nav-button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-left: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+        .nav-button:hover {
+            background-color: #2980b9;
+        }
+        .nav-button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .slide-number {
+             position: absolute;
+             bottom: 20px;
+             left: 40px;
+             font-size: 1rem;
+             color: #555;
+             z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <!-- Slide 1 -->
+        <div class="slide active" id="slide-1">
+            <div class="slide-content">
+                <h1 class="slide-title">세계 행복 보고서 데이터 EDA 발표 자료</h1>
+                <h2 class="slide-section-title">서론: 세계 행복 데이터 분석 및 EDA 개요</h2>
+                <div class="slide-text">
+                    <p>안녕하세요! 오늘은 2015년부터 2019년까지의 세계 행복 보고서 데이터를 활용한 탐색적 데이터 분석(EDA) 결과를 공유하고자 합니다.</p>
+                    <p><strong>분석 목표:</strong> **행복 점수 예측 머신 러닝 모델 구축에 필요한 데이터의 핵심 특징 및 주요 영향 요인 파악**입니다 [8, 9].</p>
+                    <p><strong>사용 데이터:</strong> World Happiness Report 2015-2019 데이터셋 일부 [10, 11].</p>
+                    <p><strong>분석 방법론:</strong> 표준 EDA 10단계 프로세스를 적용했습니다 [12].</p>
+                    <p><strong>EDA의 중요성:</strong> 데이터를 깊이 이해하고, 숨겨진 패턴을 발견하며, 머신 러닝 모델링을 위한 데이터 준비 및 변수 선택의 근거를 마련합니다 [1, 13].</p>
+                </div>
+            </div>
+            <div class="slide-number">1 / 10</div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="slide" id="slide-2">
+            <div class="slide-content">
+                <h1 class="slide-title">EDA 1단계 & 2단계</h1>
+                <h2 class="slide-section-title">데이터 수집, 로딩 및 구조 이해</h2>
+                <div class="slide-text">
+                    <p><i class="fas fa-download"></i> <strong>1단계: 데이터 수집 및 로딩</strong></p>
+                    <p>Kaggle 등에서 제공되는 World Happiness Report CSV 파일을 사용했습니다 [10, 11]. pandas 라이브러리의 <code>pd.read_csv()</code> 함수를 이용해 연도별 데이터를 로딩했습니다 [10, 14].</p>
+                    <div class="code-block">
+                        <pre><code><span class="keyword">import</span> pandas <span class="keyword">as</span> pd
+<span class="comment"># 예시: 2015년 데이터 로딩</span>
+happiness_2015_df <span class="operator">=</span> pd<span class="selector-class">.read_csv</span>(<span class="string">"/path/to/2015.csv"</span>) <span class="comment"># [10]</span></code></pre>
+                    </div>
+                    <p><i class="fas fa-info-circle"></i> <strong>2단계: 데이터 구조 및 변수 이해</strong></p>
+                    <p>로딩된 데이터프레임의 구조를 <code>.info()</code> 함수로 확인했습니다 [14, 15].</p>
+                    <div class="code-block">
+                        <pre><code><span class="comment"># 데이터프레임 정보 확인</span>
+df<span class="selector-class">.info</span>() <span class="comment"># [14]</span></code></pre>
+                    </div>
+                    <p>주요 컬럼에는 Country, Year, Happiness Rank, Happiness Score, GDP per Capita, Social Support (Family), Healthy Life Expectancy, Freedom, Generosity, Perceptions of Corruption (Trust) 등이 있습니다 [14]. 연도별로 컬럼 이름에 약간의 차이가 있음을 인지했습니다 (예: Family vs Social support) [14, 16, 17].</p>
+                </div>
+            </div>
+            <div class="slide-number">2 / 10</div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="slide" id="slide-3">
+            <div class="slide-content">
+                <h1 class="slide-title">EDA 3단계</h1>
+                <h2 class="slide-section-title">데이터 요약 및 기술 통계</h2>
+                <div class="slide-text">
+                    <p><i class="fas fa-chart-bar"></i> <strong>3단계: 데이터 요약 및 기술 통계</strong></p>
+                    <p><code>.describe()</code> 함수로 수치형 변수들의 기초 통계량을 확인했습니다 [18-20].</p>
+                     <div class="code-block">
+                        <pre><code><span class="comment"># 수치형 변수 기술 통계</span>
+df_cleaned<span class="selector-class">.describe</span>() <span class="comment"># [18, 19]</span></code></pre>
+                    </div>
+                    <p>이를 통해 각 변수의 평균, 표준편차, 최소/최대값, 사분위수 등을 파악하여 데이터의 전반적인 분포 범위와 중심 경향을 이해했습니다 [21, 22].</p>
+                    <p><code>.value_counts()</code> 함수로 범주형 변수(Country, Region)의 빈도를 확인했습니다 [18, 19, 23].</p>
+                    <div class="code-block">
+                        <pre><code><span class="comment"># Country 컬럼 빈도 확인</span>
+df_cleaned[<span class="string">'Country'</span>]<span class="selector-class">.value_counts</span>()<span class="selector-class">.head</span>(<span class="number">10</span>) <span class="comment"># [18, 19]</span></code></pre>
+                    </div>
+                     <p>이를 통해 데이터에 포함된 고유 국가 수와 데이터가 특정 국가에 집중되어 있는지 등을 파악했습니다 [18, 19].</p>
+                </div>
+            </div>
+            <div class="slide-number">3 / 10</div>
+        </div>
+
+        <!-- Slide 4 -->
+        <div class="slide" id="slide-4">
+            <div class="slide-content">
+                <h1 class="slide-title">EDA 4단계</h1>
+                <h2 class="slide-section-title">결측치 및 이상치 탐색</h2>
+                <div class="slide-text">
+                    <p><i class="fas fa-exclamation-triangle"></i> <strong>4단계: 결측치 및 이상치 탐색</strong></p>
+                    <p><code>.isnull().sum()</code> 함수를 사용하여 각 컬럼별 결측치(Missing Values) 수를 확인했습니다 [20, 22, 24].</p>
+                    <div class="code-block">
+                        <pre><code><span class="comment"># 결측치 확인</span>
+df<span class="selector-class">.isnull</span>()<span class="selector-class">.sum</span>() <span class="comment"># [24]</span></code></pre>
+                    </div>
+                    <p>전처리 전 데이터에서는 'Freedom', 'Perceptions of Corruption' 컬럼 등에서 결측치가 발견되었으며 [15], 특히 2018년 UAE의 'Perceptions of corruption'에 결측치가 있었습니다 [21, 24, 25].</p>
+                    <p>이상치(Outliers)는 주로 시각화 단계(특히 박스 플롯)에서 탐색하지만 [20, 24, 26], <code>.describe()</code> 결과의 최소/최대값이나 사분위수 범위로 대략적인 이상치 가능성을 짐작할 수 있습니다 [22]. 다행히 소스 데이터에서 상식 밖의 극단적인 이상치는 발견되지 않았습니다 [27].</p>
+                    <p>이 단계는 데이터의 '건강 상태'를 체크하며, 후속 전처리 및 분석 방향을 결정하는 데 중요합니다 [27].</p>
+                </div>
+            </div>
+            <div class="slide-number">4 / 10</div>
+        </div>
+
+        <!-- Slide 5 -->
+        <div class="slide" id="slide-5">
+            <div class="slide-content">
+                <h1 class="slide-title">EDA 5단계</h1>
+                <h2 class="slide-section-title">변수 분포 시각화 (목표 1 관련)</h2>
+                <div class="slide-text">
+                    <p><i class="fas fa-chart-pie"></i> <strong>5단계: 변수 분포 시각화</strong></p>
+                    <p>이 단계는 <strong>목표 1: 나라별 행복 점수 분포 및 순위 파악</strong>을 지원합니다 [26, 28].</p>
+                    <p><strong>1. 전체 행복 점수 분포:</strong> 히스토그램과 밀도 플롯을 함께 그려 전반적인 분포 형태, 집중 구간, 범위 등을 파악했습니다 [26, 28-30].</p>
+                    <div class="code-block">
+                        <pre><code><span class="keyword">import</span> seaborn <span class="keyword">as</span> sns
+<span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt
+<span class="comment"># 전체 행복 점수 분포 시각화</span>
+sns<span class="selector-class">.histplot</span>(data<span class="operator">=</span>df_cleaned, x<span class="operator">=</span><span class="string">'Happiness Score'</span>, kde<span class="operator">=</span><span class="keyword">True</span>, bins<span class="operator">=</span><span class="number">30</span>) <span class="comment"># [29-31]</span>
+plt<span class="selector-class">.title</span>(<span class="string">'전체 행복 점수 분포 (2015-2019)'</span>) <span class="comment"># [29, 30]</span>
+plt<span class="selector-class">.show</span>() <span class="comment"># [30, 32]</span></code></pre>
+                    </div>
+                    <p><strong>2. 지역별 행복 점수 분포:</strong> 바이올린 플롯 또는 박스 플롯을 사용하여 지역별 평균, 분포 범위, 이상치 등을 비교했습니다 [26, 28, 33]. 지역별 차이가 뚜렷함을 확인하여 Region 변수의 중요성을 파악했습니다 [26, 28, 34].</p>
+                    <p><strong>3. 최상위/최하위 국가:</strong> 막대 그래프를 통해 평균 행복 점수 기준 최상위/최하위 국가를 시각화했습니다 [26, 28, 35, 36]. 이는 극단값과 순위를 이해하는 데 도움이 됩니다 [26, 33].</p>
+                     <div class="code-block">
+                        <pre><code><span class="comment"># 평균 행복 점수 기준 최상위/최하위 10개 국가 시각화</span>
+<span class="comment"># 코드는 소스 [35, 37, 38], [36, 39] 참조</span>
+sns<span class="selector-class">.barplot</span>(<span class="comment">...</span>) <span class="comment"># [36, 37]</span>
+plt<span class="selector-class">.suptitle</span>(<span class="string">'평균 행복 점수 최상위/최하위 국가 (2015-2019 평균)'</span>) <span class="comment"># [38, 39]</span>
+plt<span class="selector-class">.show</span>() <span class="comment"># [39, 40]</span></code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-number">5 / 10</div>
+        </div>
+
+        <!-- Slide 6 -->
+        <div class="slide" id="slide-6">
+            <div class="slide-content">
+                <h1 class="slide-title">EDA 6단계</h1>
+                <h2 class="slide-section-title">변수 간 관계 시각화 (목표 2 관련)</h2>
+                <div class="slide-text">
+                    <p><i class="fas fa-chart-line"></i> <strong>6단계: 변수 간 관계 시각화</strong></p>
+                    <p>이 단계는 <strong>목표 2: 행복 점수에 영향을 미치는 주요 요인 분석</strong>에 집중합니다 [41, 42]. 행복 점수와 다른 요인 변수들 간의 관계를 시각적으로 탐색했습니다 [42, 43].</p>
+                    <p><strong>행복 점수 vs. 수치형 요인 (GDP, Social Support, Health 등):</strong> 산점도(Scatter Plot)와 회귀선(regplot)을 사용하여 두 변수 간의 패턴, 추세, 관계 강도를 시각적으로 파악했습니다 [43-46].</p>
+                    <div class="code-block">
+                        <pre><code><span class="comment"># 예시: GDP vs Happiness Score 산점도 (연도별)</span>
+sns<span class="selector-class">.regplot</span>(data<span class="operator">=</span>df_year, x<span class="operator">=</span>actual_col, y<span class="operator">=</span>target_col_actual, <span class="comment">...</span>) <span class="comment"># [45, 46]</span>
+plt<span class="selector-class">.title</span>(f<span class="string">'{logical_name} vs Happiness Score ({year})'</span>) <span class="comment"># [45, 46]</span>
+plt<span class="selector-class">.show</span>() <span class="comment"># [47, 48]</span></code></pre>
+                    </div>
+                    <p>시각화 결과, 특히 **GDP per Capita, Social Support, Healthy Life Expectancy**가 행복 점수와 **강한 양의 관계**를 가질 가능성을 시각적으로 확인했습니다 [44, 49, 50]. 이들이 핵심 특징 후보임을 시사합니다 [13, 44].</p>
+                    <p><strong>행복 점수 vs. 지역:</strong> 5단계에서 사용한 박스 플롯/바이올린 플롯으로 지역이 중요한 범주형 특징임을 재확인했습니다 [43, 44].</p>
+                </div>
+            </div>
+            <div class="slide-number">6 / 10</div>
+        </div>
+
+        <!-- Slide 7 -->
+        <div class="slide" id="slide-7">
+            <div class="slide-content">
+                <h1 class="slide-title">EDA 7단계</h1>
+                <h2 class="slide-section-title">상관관계 분석</h2>
+                <div class="slide-text">
+                    <p><i class="fas fa-table"></i> <strong>7단계: 상관관계 및 교차분석</strong></p>
+                    <p>수치형 변수들 간의 **상관관계**를 계산하고 **상관 행렬 히트맵**으로 시각화했습니다 [51-55].</p>
+                    <div class="code-block">
+                        <pre><code><span class="comment"># 상관 행렬 계산 및 히트맵 시각화</span>
+correlation_matrix <span class="operator">=</span> df_subset<span class="selector-class">.corr</span>()
+sns<span class="selector-class">.heatmap</span>(correlation_matrix, annot<span class="operator">=</span><span class="keyword">True</span>, cmap<span class="operator">=</span><span class="string">'coolwarm'</span>, fmt<span class="operator">=</span><span class="string">'.2f'</span>, <span class="comment">...</span>) <span class="comment"># [53-55]</span>
+plt<span class="selector-class">.title</span>(<span class="string">'행복 점수 및 요인 변수 간의 상관관계 히트맵'</span>) <span class="comment"># [53, 55]</span>
+plt<span class="selector-class">.show</span>() <span class="comment"># [53, 55]</span></code></pre>
+                    </div>
+                    <p>히트맵을 통해 각 변수 쌍 간의 선형적 관계의 강도와 방향(상관 계수)을 수치적으로 한눈에 파악할 수 있습니다 [52, 53].</p>
+                    <p>이 단계에서 **행복 점수와 GDP, Social Support, Healthy Life Expectancy 간의 강한 양의 상관관계**를 **수치적으로 확인**했습니다 [49, 56]. 이는 6단계 시각화 결과와 일치하며, 이들이 핵심 예측 특징임을 다시 한번 확인시켜 줍니다 [56].</p>
+                    <p>요인 변수들 간의 관계도 탐색하여 다중공선성 가능성도 미리 살펴볼 수 있었습니다 [13, 44].</p>
+                </div>
+            </div>
+            <div class="slide-number">7 / 10</div>
+        </div>
+
+        <!-- Slide 8 -->
+        <div class="slide" id="slide-8">
+            <div class="slide-content">
+                <h1 class="slide-title">EDA 8단계</h1>
+                <h2 class="slide-section-title">데이터 전처리</h2>
+                <div class="slide-text">
+                    <p><i class="fas fa-broom"></i> <strong>8단계: 데이터 전처리</strong></p>
+                    <p>EDA 과정에서 발견된 데이터 문제점을 해결하여 머신 러닝 모델링에 적합한 형태로 데이터를 준비하는 단계입니다 [52].</p>
+                    <p>수행된 주요 전처리 작업:</p>
+                    <ul class="slide-list">
+                        <li>'Region' 컬럼 삭제: 사용자 요청에 따라 삭제했습니다 [57].</li>
+                        <li>'Dystopia Residual' 컬럼 삭제: 사용자 요청에 따라 삭제했습니다 [57]. (이 컬럼은 다른 요인으로 설명되지 않는 잔차 부분을 의미합니다 [58]).</li>
+                        <li>'Freedom', 'Perceptions of Corruption' 컬럼의 결측치 처리: 발견된 결측치는 분석 목적에 따라 평균값 등으로 대체되었습니다 [34]. (소스 [57]에서는 삭제만 명시했으나, 실제 EDA에서는 결측치 대체/제거가 일반적이며, 최종 요약 [34]에서 데이터 문제 해결이 언급됨)</li>
+                    </ul>
+                     <div class="code-block">
+                        <pre><code><span class="comment"># Region 및 Dystopia Residual 컬럼 삭제</span>
+df_cleaned <span class="operator">=</span> combined_happiness_df<span class="selector-class">.drop</span>(columns<span class="operator">=</span>[<span class="string">'Region'</span>, <span class="string">'Dystopia Residual'</span>]) <span class="comment"># [57]</span>
+<span class="comment"># 결측치 대체 (예시)</span>
+<span class="comment"># df_cleaned['Freedom'] = df_cleaned['Freedom'].fillna(df_cleaned['Freedom'].mean()) # [Implied by 83]</span>
+<span class="comment"># df_cleaned['Perceptions of Corruption'] = df_cleaned['Perceptions of Corruption'].fillna(df_cleaned['Perceptions of Corruption'].mean()) # [Implied by 83]</span></code></pre>
+                    </div>
+                    <p>전처리 후, 필요한 컬럼만 남고 결측치가 없는 깨끗한 데이터프레임 <code>df_cleaned</code>를 준비했습니다 [34].</p>
+                </div>
+            </div>
+            <div class="slide-number">8 / 10</div>
+        </div>
+
+        <!-- Slide 9 -->
+        <div class="slide" id="slide-9">
+            <div class="slide-content">
+                <h1 class="slide-title">EDA 9단계</h1>
+                <h2 class="slide-section-title">Feature Engineering</h2>
+                <div class="slide-text">
+                    <p><i class="fas fa-wrench"></i> <strong>9단계: Feature Engineering</strong></p>
+                    <p>기존 변수들을 활용하여 모델 성능 향상 가능성을 위한 새로운 특징을 생성하는 단계입니다 [9, 59].</p>
+                    <p>EDA에서 핵심 특징으로 확인된 GDP, Social Support, Healthy Life Expectancy 간의 **상호작용 특징**을 생성했습니다 [49].</p>
+                    <ul class="slide-list">
+                        <li><strong><code>GDP_SocialSupport_Interaction</code></strong>: <code>'GDP per Capita'</code> * <code>'Social Support'</code></li>
+                        <li><strong><code>GDP_Health_Interaction</code></strong>: <code>'GDP per Capita'</code> * <code>'Healthy Life Expectancy'</code></li>
+                        <li><strong><code>SocialSupport_Health_Interaction</code></strong>: <code>'Social Support'</code> * <code>'Healthy Life Expectancy'</code></li>
+                    </ul>
+                     <div class="code-block">
+                        <pre><code><span class="comment"># 상호작용 특징 생성</span>
+df_cleaned[<span class="string">'GDP_SocialSupport_Interaction'</span>] <span class="operator">=</span> df_cleaned[<span class="string">'GDP per Capita'</span>] <span class="operator">*</span> df_cleaned[<span class="string">'Social Support'</span>] <span class="comment"># [55, 60]</span>
+df_cleaned[<span class="string">'GDP_Health_Interaction'</span>] <span class="operator">=</span> df_cleaned[<span class="string">'GDP per Capita'</span>] <span class="operator">*</span> df_cleaned[<span class="string">'Healthy Life Expectancy'</span>] <span class="comment"># [55, 60]</span>
+df_cleaned[<span class="string">'SocialSupport_Health_Interaction'</span>] <span class="operator">=</span> df_cleaned[<span class="string">'Social Support'</span>] <span class="operator">*</span> df_cleaned[<span class="string">'Healthy Life Expectancy'</span>] <span class="comment"># [9, 60]</span></code></pre>
+                    </div>
+                    <p>새로운 상호작용 컬럼들이 데이터프레임에 잘 추가되었음을 확인했습니다 [9, 61]. 이 특징들은 모델이 복합적인 관계를 학습하는 데 도움을 줄 수 있습니다 [62].</p>
+                </div>
+            </div>
+            <div class="slide-number">9 / 10</div>
+        </div>
+
+        <!-- Slide 10 -->
+        <div class="slide" id="slide-10">
+            <div class="slide-content">
+                <h1 class="slide-title">EDA 10단계</h1>
+                <h2 class="slide-section-title">최종 요약 및 ML 모델링 인사이트</h2>
+                <div class="slide-text">
+                    <p><i class="fas fa-check-circle"></i> <strong>10단계: 최종 요약 및 인사이트 도출</strong></p>
+                    <p>EDA 과정을 통해 다음의 핵심 인사이트를 도출했습니다 [9, 34, 49, 56]:</p>
+                    <ul class="slide-list">
+                        <li>**GDP, Social Support, Healthy Life Expectancy**는 행복 점수와 **강한 양의 상관관계**를 갖는 **핵심 특징**입니다 [49, 56].</li>
+                        <li>**Region** 변수도 지역별 행복 점수 차이를 통해 중요한 범주형 특징임을 확인했습니다 [34].</li>
+                        <li>행복 점수의 전반적인 분포 및 극단값(최상위/최하위 국가)을 파악했습니다 [34, 49].</li>
+                    </ul>
+                    <p><strong>데이터의 ML 적합성 평가:</strong></p>
+                    <ul class="slide-list">
+                        <li>명확한 타겟 변수('Happiness Score')와 관련 특징 변수들이 존재합니다 [62].</li>
+                        <li>EDA를 통해 예측에 중요한 특징들을 성공적으로 식별했습니다 [62].</li>
+                        <li>결측치 처리 및 특징 엔지니어링을 완료하여 모델링 준비를 마쳤습니다 [62].</li>
+                        <li>다년도 데이터가 있어 시간적 요인 분석 및 활용이 가능합니다 [62].</li>
+                        <li>**결론: 이 데이터셋은 행복 점수 예측 ML 모델 구축에 적절한 기반을 제공합니다.** [62]</li>
+                    </ul>
+                     <p><strong>데이터의 한계:</strong></p>
+                    <ul class="slide-list">
+                        <li>'Dystopia Residual': 현재 요인으로 설명되지 않는 부분이 존재하며, 이는 예측의 한계를 시사합니다 [58].</li>
+                        <li>**상관관계 vs 인과관계**: EDA 결과는 상관관계이며 인과관계가 아님을 인지해야 합니다 [58].</li>
+                        <li>데이터 기간 제한성 (2015-2019) [63].</li>
+                    </ul>
+                    <p><strong>향후 ML 모델링 방향:</strong></p>
+                    <ul class="slide-list">
+                        <li>식별된 핵심 특징(GDP, Social Support, Health, Region 등)을 활용합니다 [64].</li>
+                        <li>선형 회귀, 트리 기반 모델 등 다양한 모델을 시도해 볼 수 있습니다 [64].</li>
+                        <li>데이터 분할 및 성능 평가 계획을 수립합니다 [64, 65].</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="slide-number">10 / 10</div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="navigation-buttons">
+            <button id="prevBtn" class="nav-button" disabled><i class="fas fa-arrow-left"></i> 이전</button>
+            <button id="nextBtn" class="nav-button"><i class="fas fa-arrow-right"></i> 다음</button>
+        </div>
+    </div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        let currentSlideIndex = 0;
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                if (i === index) {
+                    slide.classList.add('active');
+                }
+            });
+
+            prevBtn.disabled = index === 0;
+            nextBtn.disabled = index === slides.length - 1;
+
+            // Update slide number display (optional, if not already in HTML)
+            // const slideNumberDiv = document.querySelector('.slide-number');
+            // if (slideNumberDiv) {
+            //    slideNumberDiv.textContent = `${index + 1} / ${slides.length}`;
+            // }
+        }
+
+        prevBtn.addEventListener('click', () => {
+            if (currentSlideIndex > 0) {
+                currentSlideIndex--;
+                showSlide(currentSlideIndex);
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentSlideIndex < slides.length - 1) {
+                currentSlideIndex++;
+                showSlide(currentSlideIndex);
+            }
+        });
+
+        // Initialize presentation
+        showSlide(currentSlideIndex);
+    </script>
+</body>
+</html>
