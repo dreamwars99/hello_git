@@ -149,11 +149,10 @@
                 <h1 class="slide-title">세계 행복 보고서 데이터 EDA 발표 자료</h1>
                 <h2 class="slide-section-title">서론: 세계 행복 데이터 분석 및 EDA 개요</h2>
                 <div class="slide-text">
-                    <p>안녕하세요! 오늘은 2015년부터 2019년까지의 세계 행복 보고서 데이터를 활용한 탐색적 데이터 분석(EDA) 결과를 공유하고자 합니다.</p>
-                    <p><strong>분석 목표:</strong> **행복 점수 예측 머신 러닝 모델 구축에 필요한 데이터의 핵심 특징 및 주요 영향 요인 파악**입니다 [8, 9].</p>
-                    <p><strong>사용 데이터:</strong> World Happiness Report 2015-2019 데이터셋 일부 [10, 11].</p>
-                    <p><strong>분석 방법론:</strong> 표준 EDA 10단계 프로세스를 적용했습니다 [12].</p>
-                    <p><strong>EDA의 중요성:</strong> 데이터를 깊이 이해하고, 숨겨진 패턴을 발견하며, 머신 러닝 모델링을 위한 데이터 준비 및 변수 선택의 근거를 마련합니다 [1, 13].</p>
+                    <li></li><p><strong>분석 목표:</strong> 행복 점수 예측 머신 러닝 모델 구축에 필요한 데이터의 핵심 특징 및 주요 영향 요인 파악입니다</p>
+                    <li></li><p><strong>사용 데이터:</strong> World Happiness Report 2015-2019 데이터셋 일부</p>
+                    <li></li><p><strong>분석 방법론:</strong> 표준 EDA 10단계 프로세스를 적용했습니다.</p>
+                    <li></li><p><strong>EDA의 중요성:</strong> 데이터를 깊이 이해하고, 숨겨진 패턴을 발견하며, 머신 러닝 모델링을 위한 데이터 준비 및 변수 선택의 근거를 마련합니다</p>
                 </div>
             </div>
             <div class="slide-number">1 / 10</div>
@@ -166,19 +165,19 @@
                 <h2 class="slide-section-title">데이터 수집, 로딩 및 구조 이해</h2>
                 <div class="slide-text">
                     <p><i class="fas fa-download"></i> <strong>1단계: 데이터 수집 및 로딩</strong></p>
-                    <p>Kaggle 등에서 제공되는 World Happiness Report CSV 파일을 사용했습니다 [10, 11]. pandas 라이브러리의 <code>pd.read_csv()</code> 함수를 이용해 연도별 데이터를 로딩했습니다 [10, 14].</p>
+                    <p>Kaggle 등에서 제공되는 World Happiness Report CSV 파일을 사용했습니다. pandas 라이브러리의 <code>pd.read_csv()</code> 함수를 이용해 연도별 데이터를 로딩했습니다.</p>
                     <div class="code-block">
                         <pre><code><span class="keyword">import</span> pandas <span class="keyword">as</span> pd
 <span class="comment"># 예시: 2015년 데이터 로딩</span>
-happiness_2015_df <span class="operator">=</span> pd<span class="selector-class">.read_csv</span>(<span class="string">"/path/to/2015.csv"</span>) <span class="comment"># [10]</span></code></pre>
+happiness_2015_df <span class="operator">=</span> pd<span class="selector-class">.read_csv</span>(<span class="string">"("data/2015.csv")"</span>) <span class="comment"></span></code></pre>
                     </div>
                     <p><i class="fas fa-info-circle"></i> <strong>2단계: 데이터 구조 및 변수 이해</strong></p>
-                    <p>로딩된 데이터프레임의 구조를 <code>.info()</code> 함수로 확인했습니다 [14, 15].</p>
+                    <p>로딩된 데이터프레임의 구조를 <code>.info()</code> 함수로 확인했습니다</p>
                     <div class="code-block">
                         <pre><code><span class="comment"># 데이터프레임 정보 확인</span>
-df<span class="selector-class">.info</span>() <span class="comment"># [14]</span></code></pre>
+df<span class="selector-class">.info</span>() <span class="comment"></span></code></pre>
                     </div>
-                    <p>주요 컬럼에는 Country, Year, Happiness Rank, Happiness Score, GDP per Capita, Social Support (Family), Healthy Life Expectancy, Freedom, Generosity, Perceptions of Corruption (Trust) 등이 있습니다 [14]. 연도별로 컬럼 이름에 약간의 차이가 있음을 인지했습니다 (예: Family vs Social support) [14, 16, 17].</p>
+                    <p>주요 컬럼에는 Country, Year, Happiness Rank, Happiness Score, GDP per Capita, Social Support (Family), Healthy Life Expectancy, Freedom, Generosity, Perceptions of Corruption (Trust) 등이 있습니다. 연도별로 컬럼 이름에 약간의 차이가 있음을 인지했습니다 (예: Family vs Social support).</p>
                 </div>
             </div>
             <div class="slide-number">2 / 10</div>
@@ -191,18 +190,18 @@ df<span class="selector-class">.info</span>() <span class="comment"># [14]</span
                 <h2 class="slide-section-title">데이터 요약 및 기술 통계</h2>
                 <div class="slide-text">
                     <p><i class="fas fa-chart-bar"></i> <strong>3단계: 데이터 요약 및 기술 통계</strong></p>
-                    <p><code>.describe()</code> 함수로 수치형 변수들의 기초 통계량을 확인했습니다 [18-20].</p>
+                    <p><code>.describe()</code> 함수로 수치형 변수들의 기초 통계량을 확인했습니다.</p>
                      <div class="code-block">
                         <pre><code><span class="comment"># 수치형 변수 기술 통계</span>
-df_cleaned<span class="selector-class">.describe</span>() <span class="comment"># [18, 19]</span></code></pre>
+df_cleaned<span class="selector-class">.describe</span>() <span class="comment"></span></code></pre>
                     </div>
-                    <p>이를 통해 각 변수의 평균, 표준편차, 최소/최대값, 사분위수 등을 파악하여 데이터의 전반적인 분포 범위와 중심 경향을 이해했습니다 [21, 22].</p>
-                    <p><code>.value_counts()</code> 함수로 범주형 변수(Country, Region)의 빈도를 확인했습니다 [18, 19, 23].</p>
+                    <p>이를 통해 각 변수의 평균, 표준편차, 최소/최대값, 사분위수 등을 파악하여 데이터의 전반적인 분포 범위와 중심 경향을 이해했습니다.</p>
+                    <p><code>.value_counts()</code> 함수로 범주형 변수(Country, Region)의 빈도를 확인했습니다.</p>
                     <div class="code-block">
                         <pre><code><span class="comment"># Country 컬럼 빈도 확인</span>
-df_cleaned[<span class="string">'Country'</span>]<span class="selector-class">.value_counts</span>()<span class="selector-class">.head</span>(<span class="number">10</span>) <span class="comment"># [18, 19]</span></code></pre>
+df_cleaned[<span class="string">'Country'</span>]<span class="selector-class">.value_counts</span>()<span class="selector-class">.head</span>(<span class="number">10</span>) <span class="comment"></span></code></pre>
                     </div>
-                     <p>이를 통해 데이터에 포함된 고유 국가 수와 데이터가 특정 국가에 집중되어 있는지 등을 파악했습니다 [18, 19].</p>
+                     <p>이를 통해 데이터에 포함된 고유 국가 수와 데이터가 특정 국가에 집중되어 있는지 등을 파악했습니다.</p>
                 </div>
             </div>
             <div class="slide-number">3 / 10</div>
@@ -366,8 +365,8 @@ df_cleaned[<span class="string">'SocialSupport_Health_Interaction'</span>] <span
                     <p><i class="fas fa-check-circle"></i> <strong>10단계: 최종 요약 및 인사이트 도출</strong></p>
                     <p>EDA 과정을 통해 다음의 핵심 인사이트를 도출했습니다 [9, 34, 49, 56]:</p>
                     <ul class="slide-list">
-                        <li>**GDP, Social Support, Healthy Life Expectancy**는 행복 점수와 **강한 양의 상관관계**를 갖는 **핵심 특징**입니다 [49, 56].</li>
-                        <li>**Region** 변수도 지역별 행복 점수 차이를 통해 중요한 범주형 특징임을 확인했습니다 [34].</li>
+                        <li>GDP, Social Support, Healthy Life Expectancy는 행복 점수와 <strong>강한 양의 상관관계</strong> 갖는 <strong>핵심 특징입니다</strong> [49, 56].</li>
+                        <li>Region 변수도 지역별 행복 점수 차이를 통해 중요한 범주형 특징임을 확인했습니다 [34].</li>
                         <li>행복 점수의 전반적인 분포 및 극단값(최상위/최하위 국가)을 파악했습니다 [34, 49].</li>
                     </ul>
                     <p><strong>데이터의 ML 적합성 평가:</strong></p>
