@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>학생 맞춤 케어 솔루션: 중퇴 예측 및 학업 성공 지원</title>
+    <!-- Font Awesome CDN 링크 추가 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.7; /* 줄 간격 약간 넓게 */
+            margin: 0;
+            padding: 20px 0; /* 위아래 패딩 추가 */
+            background-color: #e9eef2; /* 배경색 약간 변경 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .presentation-container {
+            width: 90%;
+            max-width: 950px; /* 슬라이드 최대 너비 약간 넓힘 */
+            background-color: #ffffff;
+            border-radius: 10px; /* 모서리 더 둥글게 */
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15); /* 그림자 강조 */
+            overflow: hidden;
+        }
+        .slide {
+            padding: 35px 45px; /* 슬라이드 내부 여백 증가 */
+            min-height: 480px; /* 슬라이드 최소 높이 증가 */
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            border-bottom: 1px solid #eee; /* 슬라이드 구분선 (마지막 제외) */
+        }
+        .slide:last-child {
+            border-bottom: none;
+        }
+        .slide.active {
+            display: flex;
+        }
+        h1, h2, h3 {
+            color: #1a2533; /* 제목 색상 더 진하게 */
+            margin-bottom: 25px; /* 제목 아래 여백 증가 */
+        }
+        h1 { font-size: 2.4em; text-align: center; line-height: 1.3; }
+        h2 { font-size: 1.9em; color: #2980b9; /* 소제목 포인트 컬러 변경 */ border-bottom: 3px solid #e0e6ed; padding-bottom: 12px; display: flex; align-items: center;}
+        h2 i { margin-right: 12px; font-size: 0.9em; } /* 제목 아이콘 스타일 */
+        ul, ol {
+            margin-left: 5px; /* 목록 들여쓰기 줄임 */
+            padding-left: 25px; /* 목록 아이콘 공간 확보 */
+            text-align: left;
+            list-style: none; /* 기본 목록 스타일 제거 */
+        }
+        li { 
+            margin-bottom: 12px; 
+            position: relative; /* 아이콘 위치 기준 */
+            padding-left: 5px; /* 아이콘과 텍스트 간격 */
+        }
+        li i { /* Font Awesome 아이콘 스타일 */
+            margin-right: 8px;
+            color: #3498db; /* 목록 아이콘 색상 */
+            font-size: 0.9em; /* 아이콘 크기 */
+        }
+        strong { color: #d35400; /* 강조 텍스트 컬러 변경 */ }
+        .slide p { text-align: left; margin-bottom: 18px; color: #333;}
+        .slide-footer {
+            text-align: center;
+            margin-top: 20px; /* 푸터 위 여백 줄임 */
+            padding: 20px;
+            background-color: #f0f4f7; /* 푸터 배경색 변경 */
+            border-top: 1px solid #dde4e9;
+        }
+        .slide-footer button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 25px; /* 버튼 크기 약간 키움 */
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 1em; /* 버튼 폰트 크기 */
+            margin: 4px 5px;
+            cursor: pointer;
+            border-radius: 6px; /* 버튼 모서리 */
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+        .slide-footer button:hover {
+            background-color: #2573a0; /* 호버 색상 변경 */
+            transform: translateY(-1px); /* 살짝 올라가는 효과 */
+        }
+        .slide-footer button:active {
+            transform: translateY(0px); /* 클릭 시 효과 */
+        }
+        #slide-number { margin: 0 20px; font-weight: bold; color: #555; font-size: 0.9em;}
+
+        /* 포인트 컬러 클래스 (재사용 가능) */
+        .text-primary { color: #007bff !important; }
+        .text-danger { color: #e74c3c !important; }
+        .text-success { color: #2ecc71 !important; }
+        .text-warning { color: #f39c12 !important; }
+
+        .highlight-box {
+            background-color: #eaf6ff;
+            border-left: 5px solid #3498db;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .highlight-box strong {
+            color: #2980b9;
+        }
+         .center-text { text-align: center !important; }
+         .big-icon { font-size: 3em; margin-bottom: 15px; color: #3498db; }
+    </style>
+</head>
+<body>
+
+    <div class="presentation-container">
+
+        <!-- 슬라이드 1: 제목 -->
+        <div class="slide active" id="slide1">
+            <!-- 스크립트 ... -->
+            <div class="center-text"><i class="fas fa-rocket big-icon text-primary"></i></div>
+            <h1><span class="text-primary">학생 맞춤 케어 솔루션</span><br>AI 기반 중퇴 예측 및 학업 성공 지원</h1>
+            <p class="center-text" style="margin-top: 20px; font-size: 1.1em;">발표자: OOO</p>
+            <p class="center-text" style="font-size: 0.9em;">[오늘 날짜]</p>
+        </div>
+
+        <!-- 슬라이드 2: 문제 제기 -->
+        <div class="slide" id="slide2">
+            <!-- 스크립트 ... -->
+            <h2><i class="fas fa-question-circle text-danger"></i><span class="text-danger">왜 우리는 학생들의 '중퇴'에 주목해야 할까요?</span></h2>
+            <ul>
+                <li><i class="fas fa-user-times"></i>학생 중퇴는 개인의 미래뿐 아니라 사회적으로도 큰 손실입니다.</li>
+                <li><i class="fas fa-lightbulb"></i>조기 발견과 개입을 통해 안타까운 중퇴를 예방할 수 있습니다.</li>
+                <li><i class="fas fa-chalkboard-teacher"></i>하지만 선생님들께서 모든 학생을 일일이 세심하게 살피기에는 현실적인 어려움이 있습니다.</li>
+            </ul>
+            <div class="highlight-box">
+                <p><i class="fas fa-bullseye"></i><strong>목표:</strong> 데이터를 기반으로 중퇴 위험군 학생을 예측하여, 선생님들의 <strong>선제적이고 효과적인 학생 관리를 지원</strong>하고자 합니다!</p>
+            </div>
+        </div>
+
+        <!-- 슬라이드 3: 프로젝트 개요 및 데이터 소개 -->
+        <div class="slide" id="slide3">
+            <!-- 스크립트 ... -->
+            <h2><i class="fas fa-clipboard-list"></i>프로젝트 개요: <span class="text-primary">"학생 중퇴 위험도 예측"</span></h2>
+            <ul>
+                <li><i class="fas fa-tag"></i><strong>프로젝트명 (확장):</strong> Predict students' dropout and academic success
+                    <ul><li><i class="fas fa-random"></i>(원래 '가입고객이탈모델'에서 학생 데이터로 확장)</li></ul>
+                </li>
+                <li><i class="fab fa-kaggle"></i><strong>데이터 출처:</strong> Kaggle - Higher Education Predictors of Student Retention
+                    <ul><li><i class="fas fa-users"></i>(총 4424명의 학생, 35개 초기 특성)</li></ul>
+                </li>
+                <li><i class="fas fa-graduation-cap"></i><strong>최종 목표:</strong> 학생 정보를 입력하면 해당 학생의 <strong>중퇴/졸업 가능성을 예측</strong>하고, 선생님께 관리 인사이트 제공</li>
+            </ul>
+            <p class="center-text" style="margin-top:15px;"><em>(Kaggle 로고나 관련 아이콘/이미지 추가 권장)</em></p>
+        </div>
+
+        <!-- 슬라이드 4: 데이터 전처리 과정 -->
+        <div class="slide" id="slide4">
+            <!-- 스크립트 ... -->
+            <h2><i class="fas fa-cogs"></i>데이터 준비 과정: <span class="text-primary">"모델이 잘 배울 수 있도록!"</span></h2>
+            <ol>
+                <li><i class="fas fa-object-group"></i><strong>훈련/검증/테스트 세트 분리:</strong> 모델 학습과 객관적인 평가를 위해 데이터를 나눴습니다.</li>
+                <li><i class="fas fa-filter"></i><strong>타겟 변수 정리:</strong>
+                    <ul>
+                        <li><i class="fas fa-exclamation-triangle"></i>초기 분석: 'Dropout', 'Enrolled', 'Graduate' 3개 클래스</li>
+                        <li><i class="fas fa-search-minus"></i>문제점 발견: 'Enrolled'(재학생) 클래스 예측 성능 저조 및 모호성</li>
+                        <li><i class="fas fa-check-circle text-success"></i><strong>해결: 'Enrolled' 클래스 제외! 'Dropout' vs 'Graduate' 이진 분류 문제로 전환!</strong></li>
+                    </ul>
+                </li>
+                <li><i class="fas fa-code"></i><strong>인코딩:</strong>
+                    <ul>
+                        <li><i class="fas fa-tags"></i><strong>범주형 변수:</strong> 숫자 코드를 모델이 오해하지 않도록 <strong>원-핫 인코딩</strong>으로 변환.</li>
+                        <li><i class="fas fa-compress-arrows-alt"></i><strong>수치형 변수:</strong> 값의 범위를 맞춰주기 위해 <strong>스케일링</strong>(StandardScaler) 진행.</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <!-- 슬라이드 5: 모델링 과정 및 최종 모델 선택 -->
+        <div class="slide" id="slide5">
+            <!-- 스크립트 ... -->
+            <h2><i class="fas fa-brain"></i>모델링: <span class="text-primary">"최고의 예측가를 찾아라!"</span></h2>
+            <ul>
+                <li><i class="fas fa-sitemap"></i><strong>다양한 모델 테스트:</strong> 로지스틱 회귀부터 부스팅 계열까지 총 9개 모델 기본 성능 비교.</li>
+                <li><i class="fas fa-chart-line text-success"></i><strong>이진 분류 전환 후 성능 대폭 향상!</strong> (정확도 약 70%대 → 90% 이상!)</li>
+                <li><i class="fas fa-sliders-h"></i><strong>하이퍼파라미터 튜닝:</strong> `RandomizedSearchCV` 활용, 우수 모델 대상 최적 설정 탐색.</li>
+                <li><i class="fas fa-trophy text-warning"></i><strong>최종 선택 모델: <span class="text-danger">LightGBM</span></strong>
+                    <ul>
+                        <li><i class="fas fa-percentage"></i>테스트 정확도: 약 <strong>91.18%</strong> (기본 파라미터)</li>
+                        <li><i class="fas fa-balance-scale"></i>Dropout/Graduate 클래스 모두 균형 잡힌 높은 F1-Score</li>
+                        <li><i class="fas fa-shield-alt"></i>과대적합 문제도 크게 보이지 않음</li>
+                    </ul>
+                </li>
+            </ul>
+             <p class="center-text" style="margin-top:15px;"><em>(모델별 정확도 비교 그래프나 LightGBM 결과 요약 이미지 추가 권장)</em></p>
+        </div>
+
+        <!-- 슬라이드 6: 딥러닝 시도 -->
+        <div class="slide" id="slide6">
+            <!-- 스크립트 ... -->
+            <h2><i class="fas fa-atom"></i>추가 시도: <span class="text-primary">딥러닝 모델 맛보기</span></h2>
+            <ul>
+                <li><i class="fas fa-network-wired"></i>간단한 인공신경망(ANN) 모델을 구성하여 딥러닝 방식도 시도.</li>
+                <li><i class="far fa-clock"></i><strong>EarlyStopping 콜백 적용:</strong> 과대적합 방지 및 효율적 학습 유도.</li>
+                <li><i class="fas fa-poll"></i>결과: (딥러닝 모델 정확도 및 간단한 소감 - 예: "가능성을 확인했지만, LightGBM이 더 우수한 성능을 보였습니다.")</li>
+            </ul>
+        </div>
+
+        <!-- 슬라이드 7: 시스템 활용 방안 및 기대 효과 -->
+        <div class="slide" id="slide7">
+            <!-- 스크립트 ... -->
+            <h2><i class="fas fa-hands-helping"></i>시스템 활용 방안: <span class="text-primary">"선생님, 이제 AI가 함께합니다!"</span></h2>
+            <p>개발된 예측 모델은 다음과 같이 활용될 수 있습니다:</p>
+            <ul>
+                <li><i class="fas fa-desktop"></i><strong>학생 정보 입력 시 실시간 예측:</strong> (Streamlit 웹앱 시안 이미지 등 활용) 중퇴/졸업 가능성 즉시 확인.</li>
+                <li><i class="fas fa-user-secret"></i><strong>위험군 학생 조기 식별:</strong> 고위험군 학생 선별 및 우선 관심 대상 지정.</li>
+                <li><i class="fas fa-comments"></i><strong>맞춤형 상담 및 지원 연계:</strong> 위험도 기반 맞춤형 상담 및 지원 프로그램 연계.</li>
+                <li><i class="fas fa-chart-bar"></i><strong>데이터 기반 학생 관리 문화 조성:</strong> 객관적 데이터 기반 학생 이해 및 지원.</li>
+            </ul>
+            <div class="highlight-box">
+            <p><i class="fas fa-star"></i><strong>기대 효과:</strong> <span class="text-success" style="font-weight:bold;">궁극적으로 학생들의 중퇴율을 낮추고, 더 많은 학생들이 성공적으로 학업을 마칠 수 있도록 지원하여, 긍정적인 영향을 줄 수 있을 것입니다!</span></p>
+            </div>
+        </div>
+
+        <!-- 슬라이드 8: 결론 및 향후 과제 -->
+        <div class="slide" id="slide8">
+            <!-- 스크립트 ... -->
+            <h2><i class="fas fa-flag-checkered"></i>결론 및 나아갈 길</h2>
+            <ul>
+                <li><i class="fas fa-award text-warning"></i><strong>성공적인 예측 모델 구축:</strong> LightGBM 모델, 약 <strong>91.2%</strong> 정확도 달성.</li>
+                <li><i class="fas fa-seedling text-success"></i><strong>데이터 기반 학생 지원의 첫걸음:</strong> 선생님의 학생 관리 및 케어에 실질적 도움 제공 가능.</li>
+                <li><i class="fas fa-map-signs"></i><strong>향후 과제:</strong>
+                    <ul>
+                        <li>모델 성능 지속적 개선</li>
+                        <li>모델 해석 기능 강화 (SHAP, LIME 등)</li>
+                        <li>실제 교육 현장 적용 및 피드백 기반 시스템 고도화</li>
+                        <li>'효과적인 개입 전략' 구체화</li>
+                    </ul>
+                </li>
+            </ul>
+            <p class="center-text" style="font-weight:bold; margin-top:20px; font-size:1.1em;"><strong>"AI와 함께, 모든 학생의 빛나는 미래를 응원합니다!" <i class="fas fa-laugh-beam text-warning"></i></strong></p>
+        </div>
+
+        <!-- 슬라이드 9: Q&A -->
+        <div class="slide" id="slide9">
+            <!-- 스크립트 ... -->
+            <div class="center-text"><i class="far fa-comments big-icon"></i></div>
+            <h2 class="center-text" style="border-bottom:none;">❓ Q & A</h2>
+            <p class="center-text" style="font-size: 1.2em; margin-top: 30px;">질문 있으신가요?</p>
+            <p class="center-text" style="font-size: 1.2em; margin-top: 20px;">경청해주셔서 감사합니다! <i class="fas fa-heart text-danger"></i></p>
+        </div>
+
+    </div>
+
+    <div class="slide-footer">
+        <button onclick="prevSlide()"><i class="fas fa-arrow-left"></i> 이전</button>
+        <span id="slide-number">1 / 9</span>
+        <button onclick="nextSlide()">다음 <i class="fas fa-arrow-right"></i></button>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.presentation-container .slide');
+        const slideNumberDisplay = document.getElementById('slide-number');
+        const totalSlides = slides.length;
+
+        function showSlide(index) {
+            slides.forEach((slide) => {
+                slide.classList.remove('active');
+            });
+            slides[index].classList.add('active');
+            slideNumberDisplay.textContent = `${index + 1} / ${totalSlides}`;
+        }
+
+        function nextSlide() {
+            currentSlideIndex = (currentSlideIndex + 1) % totalSlides;
+            showSlide(currentSlideIndex);
+        }
+
+        function prevSlide() {
+            currentSlideIndex = (currentSlideIndex - 1 + totalSlides) % totalSlides;
+            showSlide(currentSlideIndex);
+        }
+        showSlide(currentSlideIndex); // 초기 슬라이드 표시
+    </script>
+</body>
+</html>
